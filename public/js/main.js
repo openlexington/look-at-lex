@@ -1,10 +1,23 @@
+function format_dollars(dollars) {
+  return numeral(dollars).format('($ 0.0 a)');
+}
+
 function setup_chart(selector, data, label_key) {
   var chart_area = $(selector);
-  var width = chart_area.width();
-  var height = width / 1.33;
-  var radius = width * 0.375;
+  var container_width = chart_area.parent().innerWidth();
+  var legend_left_padding = 10;
+  var width = Math.floor(container_width / 2.5) - legend_left_padding;
+  var height = width;
+  var line_height = 20;
+  var legend_height = data.length * line_height;
+  if (legend_height > height) {
+    height = legend_height;
+  }
+  var radius = width / 2;
+  var label_radius = radius + 30;
   var color = d3.scale.category20c();
-  var vis = d3.select(selector).append('svg:svg').data([data]).
+  var vis = d3.select(selector).append('svg:svg').
+               attr('class', 'chart pie').data([data]).
                attr('width', width).attr('height', height).
                append('svg:g').
                attr('transform', 'translate(' + radius + ',' + radius + ')');
@@ -17,13 +30,41 @@ function setup_chart(selector, data, label_key) {
   arcs.append('svg:path').attr('fill', function (d, i) {
     return color(i);
   }).attr('d', arc);
-  arcs.append('svg:text').attr('transform', function (d) {
-    d.innerRadius = 0;
-    d.outerRadius = radius;
-    return 'translate(' + arc.centroid(d) + ')';
-  }).attr('text-anchor', 'middle').text(function (d, i) {
-    return data[i][label_key];
-  });
+  arcs.append('svg:text').attr('class', 'pie-label').
+       attr('transform', function (d) {
+                           d.innerRadius = 0;
+                           d.outerRadius = radius;
+                           return 'translate(' + arc.centroid(d) + ')';
+                         }).
+       attr('text-anchor', 'middle').text(
+         function (d, i) {
+           var dollars = data[i].fy_2014_adopted;
+           return format_dollars(dollars);
+         }
+       );
+  // arcs.append('text').text(function (d, i) {
+  //   return data[i].fy_2014_adopted;
+  // }).attr('transform', function (d) {
+  //   d.innerRadius = radius * 0.5;
+  //   d.outerRadius = radius * 1.5;
+  //   return 'translate(' + arc.centroid(d) + ')';
+  // });
+  var legend_width = width * 1.2;
+  legend_height += (height / 2.0) - (legend_height / 2.0);
+  legend = d3.select(selector).append('svg').attr('class', 'legend').
+     attr('width', legend_width).
+     attr('height', legend_height).
+     selectAll('g').data(color.domain().slice()).enter().
+     append('g').
+     attr('transform', function (d, i) {
+       return 'translate(0,' + i * line_height + ')';
+     });
+  legend.append('rect').attr('width', 18).attr('height', 18).
+     style('fill', color);
+  legend.append('text').attr('x', 24).attr('y', 9).
+     attr('dy', '.35em').text(function (i) {
+       return data[i][label_key];
+     });
 }
 
 function group_data(data, key, value_property) {
@@ -59,7 +100,7 @@ function group_data(data, key, value_property) {
       grouped_data.push(group);
     }
   }
-  grouped_data.sort(function (a, b) {
+  var value_sorter = function(a, b) {
     var a_value = a[value_property];
     var b_value = b[value_property];
     if (a_value > b_value) {
@@ -69,11 +110,22 @@ function group_data(data, key, value_property) {
       return 1;
     }
     return 0;
-  });
+  }
+  grouped_data.sort(value_sorter);
   var max_slices = 5;
   var end_slice = grouped_data.length < max_slices ? grouped_data.length
                                                    : max_slices;
-  return grouped_data.slice(0, end_slice);
+  var main_groups = grouped_data.slice(0, end_slice);
+  var other_groups = grouped_data.slice(end_slice, grouped_data.length);
+  var other_group = {};
+  other_group[key] = 'Other';
+  other_group[value_property] = 0;
+  for (var i=0; i<other_groups.length; i++) {
+    other_group[value_property] += other_groups[i][value_property];
+  }
+  var groups_with_other = main_groups.concat(other_group);
+  groups_with_other.sort(value_sorter);
+  return groups_with_other;
 }
 
 function extract_fund_data(fund, data) {
