@@ -1,5 +1,5 @@
 // Thanks to http://plnkr.co/edit/3G0ALAVNACNhutOqDelk?p=preview
-function pointIsInArc(arc, pt, ptData, d3Arc) {
+function is_point_in_arc(arc, pt, ptData, d3Arc) {
   // Center of the arc is assumed to be 0,0
   // (pt.x, pt.y) are assumed to be relative to the center
   var r1 = arc.innerRadius()(ptData),
@@ -37,15 +37,21 @@ function setup_chart(selector, data, label_key) {
                append('svg:g').
                attr('transform', 'translate(' + radius + ',' + radius + ')');
   var arc = d3.svg.arc().outerRadius(radius);
-  var pie = d3.layout.pie().value(function (d) {
-    return d.fy_2014_adopted;
-  });
+  var pie = d3.layout.pie().value(function (d) { return d.fy_2014_adopted; });
   var arcs = vis.selectAll('g.slice').data(pie).enter().
-                 append('svg:g').attr('class', 'slice');
-  arcs.append('svg:path').attr('fill', function (d, i) {
-    return color(i);
-  }).attr('d', arc);
+                 append('svg:g').attr('class', 'slice').
+                 on('mouseover', function (d, i) {
+                   console.log($(this), d.data);
+                   $(this).tooltip({
+                     container: 'body',
+                     placement: 'bottom',
+                     title: format_dollars(d.data.fy_2014_adopted)
+                   });
+                 });
+  arcs.append('svg:path').attr('fill', function (d, i) { return color(i); }).
+       attr('d', arc);
 
+  // Labels inside pie slices
   arcs.append('svg:text').attr('class', 'pie-label').
        attr('transform', function (d) {
                            d.innerRadius = 0;
@@ -60,48 +66,22 @@ function setup_chart(selector, data, label_key) {
        each(function (d) {
          var bb = this.getBBox();
          var center = arc.centroid(d);
-         var topLeft = {
-           x : center[0] + bb.x,
-           y : center[1] + bb.y
-         };
-         var topRight = {
-           x : topLeft.x + bb.width,
-           y : topLeft.y
-         };
-         var bottomLeft = {
-           x : topLeft.x,
-           y : topLeft.y + bb.height
-         };
-         var bottomRight = {
-           x : topLeft.x + bb.width,
-           y : topLeft.y + bb.height
-         };
-         d.visible = pointIsInArc(arc, topLeft, d, arc) &&
-                     pointIsInArc(arc, topRight, d, arc) &&
-                     pointIsInArc(arc, bottomLeft, d, arc) &&
-                     pointIsInArc(arc, bottomRight, d, arc);
+         var topLeft = {x: center[0] + bb.x, y: center[1] + bb.y};
+         var topRight = {x: topLeft.x + bb.width, y: topLeft.y};
+         var bottomLeft = {x: topLeft.x, y: topLeft.y + bb.height};
+         var bottomRight = {x: topLeft.x + bb.width, y: topLeft.y + bb.height};
+         d.visible = is_point_in_arc(arc, topLeft, d, arc) &&
+                     is_point_in_arc(arc, topRight, d, arc) &&
+                     is_point_in_arc(arc, bottomLeft, d, arc) &&
+                     is_point_in_arc(arc, bottomRight, d, arc);
        }).
        style('display', function (d) { return d.visible ? null : 'none'; });
-  // arcs.append('svg:text').attr('class', 'pie-label').
-  //      attr('transform', function (d) {
-  //                          d.innerRadius = 0;
-  //                          d.outerRadius = radius;
-  //                          return 'translate(' + arc.centroid(d) + ')';
-  //                        }).
-  //      attr('text-anchor', 'middle').text(
-  //        function (d, i) {
-  //          var dollars = data[i].fy_2014_adopted;
-  //          return format_dollars(dollars);
-  //        }
-  //      );
-  // arcs.append('text').text(function (d, i) {
-  //   return data[i].fy_2014_adopted;
-  // }).attr('transform', function (d) {
-  //   d.innerRadius = radius * 0.5;
-  //   d.outerRadius = radius * 1.5;
-  //   return 'translate(' + arc.centroid(d) + ')';
-  // });
+  arcs.append('svg:title').
+       text(function (d, i) {
+         return format_dollars(d.data.fy_2014_adopted);
+       });
 
+  // Color boxes and legend text
   var legend_width = width * 1.2;
   legend_height += (height / 2.0) - (legend_height / 2.0);
   legend = d3.select(selector).append('svg').attr('class', 'legend').
@@ -114,10 +94,12 @@ function setup_chart(selector, data, label_key) {
      });
   legend.append('rect').attr('width', 18).attr('height', 18).
      style('fill', color);
-  legend.append('text').attr('x', 24).attr('y', 9).
-     attr('dy', '.35em').text(function (i) {
-       return data[i][label_key];
-     });
+  legend.append('text').attr('class', 'legend-label').
+         attr('x', 24).attr('y', 9).
+         attr('dy', '.35em').
+         text(function (i) {
+           return data[i][label_key];
+         });
 }
 
 function group_data(data, key, value_property) {
@@ -193,6 +175,7 @@ function extract_fund_data(fund, data) {
 }
 
 $(function() {
+  $('[data-toggle="tooltip"]').tooltip();
   var json_url = '/2014-lexington-ky-budget.json';
   $.getJSON(json_url, function(response) {
     var all_data = response;
