@@ -21,7 +21,7 @@ function format_long_dollars(dollars) {
   return numeral(dollars).format('$ 0,0[.]00');
 }
 
-function setup_chart(selector, data, label_key) {
+function setup_chart(selector, color, data, label_key) {
   var chart_area = $(selector);
   var container_width = chart_area.parent().innerWidth();
   var legend_left_padding = 10;
@@ -34,7 +34,6 @@ function setup_chart(selector, data, label_key) {
   }
   var radius = width / 2;
   var label_radius = radius + 30;
-  var color = d3.scale.category20c();
   var vis = d3.select(selector).append('svg:svg').
                attr('class', 'chart pie').data([data]).
                attr('width', width).attr('height', height).
@@ -80,10 +79,11 @@ function setup_chart(selector, data, label_key) {
                      is_point_in_arc(arc, bottomRight, d, arc);
        }).
        style('display', function (d) { return d.visible ? null : 'none'; });
-  arcs.append('svg:title').
-       text(function (d, i) {
-         return format_long_dollars(d.data.fy_2014_adopted);
-       });
+  // Normal HTML title on hover
+  // arcs.append('svg:title').
+  //      text(function (d, i) {
+  //        return format_long_dollars(d.data.fy_2014_adopted);
+  //      });
 
   // Color boxes and legend text
   var legend_width = width * 1.2;
@@ -185,11 +185,11 @@ $(function() {
     var all_data = response;
 
     var all_funds_data = group_data(all_data, 'fund_name', 'fy_2014_adopted');
-    setup_chart('#all-funds-pie', all_funds_data, 'fund_name');
+    setup_chart('#all-funds-pie', d3.scale.category20(), all_funds_data, 'fund_name');
 
     var general_services_data = group_data(extract_fund_data(1101, all_data),
                                            'division_name', 'fy_2014_adopted');
-    setup_chart('#general-services-pie', general_services_data,
-                'division_name');
+    setup_chart('#general-services-pie', d3.scale.category20(),
+                general_services_data, 'division_name');
   });
 });
