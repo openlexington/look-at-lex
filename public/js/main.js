@@ -1,9 +1,9 @@
-function setup_chart(data) {
+function setup_chart(selector, data, label_key) {
   var width = 800;
   var height = 600;
   var radius = 300;
   var color = d3.scale.category20c();
-  var vis = d3.select('#pie-chart').append('svg:svg').data([data]).
+  var vis = d3.select(selector).append('svg:svg').data([data]).
                attr('width', width).attr('height', height).
                append('svg:g').
                attr('transform', 'translate(' + radius + ',' + radius + ')');
@@ -21,7 +21,7 @@ function setup_chart(data) {
     d.outerRadius = radius;
     return 'translate(' + arc.centroid(d) + ')';
   }).attr('text-anchor', 'middle').text(function (d, i) {
-    return data[i].fund_name;
+    return data[i][label_key];
   });
 }
 
@@ -76,10 +76,28 @@ function group_data(data, key, value_property) {
   return grouped_data.slice(0, end_slice);
 }
 
+function extract_fund_data(fund, data) {
+  var fund_data = [];
+  for (var i=0; i<data.length; i++) {
+    var obj = data[i];
+    if (obj.fund === fund) {
+      fund_data.push(obj);
+    }
+  }
+  return fund_data;
+}
+
 $(function() {
-  var chart = $('#pie-chart');
   var json_url = '/2014-lexington-ky-budget.json';
   $.getJSON(json_url, function(response) {
-    setup_chart(group_data(response, 'fund_name', 'fy_2014_adopted'));
+    var all_data = response;
+    setup_chart('#all-funds-pie',
+                group_data(all_data, 'fund_name', 'fy_2014_adopted'),
+                'fund_name');
+    var general_services_data = extract_fund_data(1101, all_data);
+    setup_chart('#general-services-pie',
+                group_data(general_services_data, 'division_name',
+                           'fy_2014_adopted'),
+                'division_name');
   });
 });
