@@ -1,6 +1,6 @@
 function setup_chart(data) {
-  var width = 640;
-  var height = 480;
+  var width = 800;
+  var height = 600;
   var radius = 300;
   var color = d3.scale.category20c();
   var vis = d3.select('#pie-chart').append('svg:svg').data([data]).
@@ -36,9 +36,6 @@ function group_data(data, key, value_property) {
     }
     return undefined;
   };
-  // console.log('before it exists:', get_group('General Services District'));
-  // grouped_data.push({fund_name: 'General Services District', fy_2014_adopted: 15});
-  // console.log('after it exists:', get_group('General Services District'));
   for (var i=0; i<data.length; i++) {
     var obj = data[i];
     var group = get_group(obj[key]);
@@ -52,6 +49,7 @@ function group_data(data, key, value_property) {
     var value = obj[value_property];
     if (typeof(value) !== 'undefined' && value != '') {
       var float_value = parseFloat(value.replace(/,/, ''));
+      // Parentheses in value, don't include
       if (value.indexOf('(') < 0 || value.indexOf(')') < 0) {
         group[value_property] += float_value;
       }
@@ -60,15 +58,28 @@ function group_data(data, key, value_property) {
       grouped_data.push(group);
     }
   }
+  grouped_data.sort(function (a, b) {
+    var a_value = a[value_property];
+    var b_value = b[value_property];
+    if (a_value > b_value) {
+      return -1;
+    }
+    if (a_value < b_value) {
+      return 1;
+    }
+    return 0;
+  });
   console.log(grouped_data);
-  return grouped_data;
+  var max_slices = 5;
+  var end_slice = grouped_data.length < max_slices ? grouped_data.length
+                                                   : max_slices;
+  return grouped_data.slice(0, end_slice);
 }
 
 $(function() {
   var chart = $('#pie-chart');
   var json_url = '/2014-lexington-ky-budget.json';
   $.getJSON(json_url, function(response) {
-    console.log('got the data');
     setup_chart(group_data(response, 'fund_name', 'fy_2014_adopted'));
   });
 });
