@@ -1,7 +1,8 @@
 function setup_chart(selector, data, label_key) {
-  var width = 800;
-  var height = 600;
-  var radius = 300;
+  var chart_area = $(selector);
+  var width = chart_area.width();
+  var height = width / 1.33;
+  var radius = width * 0.375;
   var color = d3.scale.category20c();
   var vis = d3.select(selector).append('svg:svg').data([data]).
                attr('width', width).attr('height', height).
@@ -69,7 +70,6 @@ function group_data(data, key, value_property) {
     }
     return 0;
   });
-  console.log(grouped_data);
   var max_slices = 5;
   var end_slice = grouped_data.length < max_slices ? grouped_data.length
                                                    : max_slices;
@@ -91,13 +91,13 @@ $(function() {
   var json_url = '/2014-lexington-ky-budget.json';
   $.getJSON(json_url, function(response) {
     var all_data = response;
-    setup_chart('#all-funds-pie',
-                group_data(all_data, 'fund_name', 'fy_2014_adopted'),
-                'fund_name');
-    var general_services_data = extract_fund_data(1101, all_data);
-    setup_chart('#general-services-pie',
-                group_data(general_services_data, 'division_name',
-                           'fy_2014_adopted'),
+
+    var all_funds_data = group_data(all_data, 'fund_name', 'fy_2014_adopted');
+    setup_chart('#all-funds-pie', all_funds_data, 'fund_name');
+
+    var general_services_data = group_data(extract_fund_data(1101, all_data),
+                                           'division_name', 'fy_2014_adopted');
+    setup_chart('#general-services-pie', general_services_data,
                 'division_name');
   });
 });
