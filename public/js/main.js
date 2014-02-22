@@ -1,3 +1,18 @@
+// Thanks to http://plnkr.co/edit/3G0ALAVNACNhutOqDelk?p=preview
+function pointIsInArc(arc, pt, ptData, d3Arc) {
+  // Center of the arc is assumed to be 0,0
+  // (pt.x, pt.y) are assumed to be relative to the center
+  var r1 = arc.innerRadius()(ptData),
+      r2 = arc.outerRadius()(ptData),
+      theta1 = arc.startAngle()(ptData),
+      theta2 = arc.endAngle()(ptData);
+  var dist = pt.x * pt.x + pt.y * pt.y,
+      angle = Math.atan2(pt.x, -pt.y);
+  angle = (angle < 0) ? (angle + Math.PI * 2) : angle;
+  return (r1 * r1 <= dist) && (dist <= r2 * r2) &&
+         (theta1 <= angle) && (angle <= theta2);
+}
+
 function format_dollars(dollars) {
   return numeral(dollars).format('($ 0.0 a)');
 }
@@ -30,18 +45,55 @@ function setup_chart(selector, data, label_key) {
   arcs.append('svg:path').attr('fill', function (d, i) {
     return color(i);
   }).attr('d', arc);
+
   arcs.append('svg:text').attr('class', 'pie-label').
        attr('transform', function (d) {
                            d.innerRadius = 0;
                            d.outerRadius = radius;
                            return 'translate(' + arc.centroid(d) + ')';
                          }).
-       attr('text-anchor', 'middle').text(
-         function (d, i) {
-           var dollars = data[i].fy_2014_adopted;
-           return format_dollars(dollars);
-         }
-       );
+       attr('dy', '.35em').
+       style('text-anchor', 'middle').
+       text(function (d) {
+              return format_dollars(d.data.fy_2014_adopted);
+            }).
+       each(function (d) {
+         var bb = this.getBBox();
+         var center = arc.centroid(d);
+         var topLeft = {
+           x : center[0] + bb.x,
+           y : center[1] + bb.y
+         };
+         var topRight = {
+           x : topLeft.x + bb.width,
+           y : topLeft.y
+         };
+         var bottomLeft = {
+           x : topLeft.x,
+           y : topLeft.y + bb.height
+         };
+         var bottomRight = {
+           x : topLeft.x + bb.width,
+           y : topLeft.y + bb.height
+         };
+         d.visible = pointIsInArc(arc, topLeft, d, arc) &&
+                     pointIsInArc(arc, topRight, d, arc) &&
+                     pointIsInArc(arc, bottomLeft, d, arc) &&
+                     pointIsInArc(arc, bottomRight, d, arc);
+       }).
+       style('display', function (d) { return d.visible ? null : 'none'; });
+  // arcs.append('svg:text').attr('class', 'pie-label').
+  //      attr('transform', function (d) {
+  //                          d.innerRadius = 0;
+  //                          d.outerRadius = radius;
+  //                          return 'translate(' + arc.centroid(d) + ')';
+  //                        }).
+  //      attr('text-anchor', 'middle').text(
+  //        function (d, i) {
+  //          var dollars = data[i].fy_2014_adopted;
+  //          return format_dollars(dollars);
+  //        }
+  //      );
   // arcs.append('text').text(function (d, i) {
   //   return data[i].fy_2014_adopted;
   // }).attr('transform', function (d) {
@@ -49,6 +101,7 @@ function setup_chart(selector, data, label_key) {
   //   d.outerRadius = radius * 1.5;
   //   return 'translate(' + arc.centroid(d) + ')';
   // });
+
   var legend_width = width * 1.2;
   legend_height += (height / 2.0) - (legend_height / 2.0);
   legend = d3.select(selector).append('svg').attr('class', 'legend').
