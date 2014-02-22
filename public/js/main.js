@@ -17,6 +17,10 @@ function format_dollars(dollars) {
   return numeral(dollars).format('($ 0.0 a)');
 }
 
+function format_long_dollars(dollars) {
+  return numeral(dollars).format('$ 0,0[.]00');
+}
+
 function setup_chart(selector, data, label_key) {
   var chart_area = $(selector);
   var container_width = chart_area.parent().innerWidth();
@@ -40,16 +44,16 @@ function setup_chart(selector, data, label_key) {
   var pie = d3.layout.pie().value(function (d) { return d.fy_2014_adopted; });
   var arcs = vis.selectAll('g.slice').data(pie).enter().
                  append('svg:g').attr('class', 'slice').
-                 on('mouseover', function (d, i) {
-                   console.log($(this), d.data);
-                   $(this).tooltip({
-                     container: 'body',
-                     placement: 'bottom',
-                     title: format_dollars(d.data.fy_2014_adopted)
-                   });
+                 attr('title', function (d, i) {
+                   return format_long_dollars(d.data.fy_2014_adopted);
                  });
   arcs.append('svg:path').attr('fill', function (d, i) { return color(i); }).
        attr('d', arc);
+
+  $('g.slice').tooltip({
+    container: 'body',
+    placement: 'right'
+  });
 
   // Labels inside pie slices
   arcs.append('svg:text').attr('class', 'pie-label').
@@ -78,7 +82,7 @@ function setup_chart(selector, data, label_key) {
        style('display', function (d) { return d.visible ? null : 'none'; });
   arcs.append('svg:title').
        text(function (d, i) {
-         return format_dollars(d.data.fy_2014_adopted);
+         return format_long_dollars(d.data.fy_2014_adopted);
        });
 
   // Color boxes and legend text
