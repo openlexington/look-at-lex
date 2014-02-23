@@ -42,7 +42,8 @@ class PieChart
     dist = pt.x * pt.x + pt.y * pt.y
     angle = Math.atan2(pt.x, -pt.y)
     angle = (if (angle < 0) then (angle + Math.PI * 2) else angle)
-    (r1 * r1 <= dist) and (dist <= r2 * r2) and (theta1 <= angle) and (angle <= theta2)
+    (r1 * r1 <= dist) and (dist <= r2 * r2) and (theta1 <= angle) and
+        (angle <= theta2)
 
   label_pie_slices: (get_label) ->
     transformer = (d) =>
