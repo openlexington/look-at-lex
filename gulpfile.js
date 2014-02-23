@@ -79,7 +79,7 @@ gulp.task('minify-js', ['coffee'], function() {
 
 // Remove intermediate JavaScript files
 gulp.task('clean-js', ['minify-js'], function () {
-  return gulp.src([tmp_js_path + '/*.js'], {read: false}).
+  return gulp.src([tmp_js_path + '/**/*.js'], {read: false}).
               pipe(clean().on('error', on_error));
 });
 
