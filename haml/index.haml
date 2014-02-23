@@ -1,10 +1,5 @@
 !!!
-/[if lt IE 7] <html class="no-js lt-ie9 lt-ie8 lt-ie7">
-/[if IE 7] <html class="no-js lt-ie9 lt-ie8">
-/[if IE 8] <html class="no-js lt-ie9">
-/ [if gt IE 8]><!
-%html.no-js
-  / <![endif]
+%html{'ng-app' => 'LexApp'}
   %head
     %meta{charset: 'utf-8'}
     %meta{content: 'IE=edge', 'http-equiv' => 'X-UA-Compatible'}
@@ -17,13 +12,5 @@
     .container
       .page-header
         %h1 Look at Lexington
-      %section
-        %h2 2014 Lexington, KY Budget
-        .row
-          .col-md-6
-            %h3 All Funds
-            #all-funds-pie.chart-wrapper
-          .col-md-6
-            %h3 General Services
-            #general-services-pie.chart-wrapper
+      %div{'ng-view' => ''}
     %script{src: 'js/all.js'}

@@ -13,4 +13,4 @@ Lexington, Kentucky budget visualization
 
 ## To Run
 
-`foreman start` starts both the Rack server that serves up static HTML, CSS, and JavaScript files and Gulp, which watches for changes in your Haml, CoffeeScript, and LESS files and will recompile them.
+`foreman start -f Procfile.local` starts both the Rack server that serves up static HTML, CSS, and JavaScript files and Gulp, which watches for changes in your Haml, CoffeeScript, and LESS files and will recompile them.

@@ -62,18 +62,24 @@ gulp.task('coffee', function() {
 // Combine JS files
 gulp.task('minify-js', ['coffee'], function() {
   return gulp.src([vendor_js_path + '/jquery-1.10.2.min.js',
+                   vendor_js_path + '/angular.min.js',
+                   vendor_js_path + '/angular-*.min.js',
                    vendor_js_path + '/d3.min.js',
+                   vendor_js_path + '/loading-bar.min.js',
                    vendor_js_path + '/bootstrap.min.js',
+                   vendor_js_path + '/ui-bootstrap-*.min.js',
                    vendor_js_path + '/numeral.min.js',
-                   tmp_js_path + '/pie_chart.js',
-                   tmp_js_path + '/main.js']).
+                   tmp_js_path + '/app.js',
+                   tmp_js_path + '/routes.js',
+                   tmp_js_path + '/models/*.js',
+                   tmp_js_path + '/controllers/*.js']).
               pipe(concat('all.js').on('error', on_error)).
               pipe(gulp.dest('./public/js'));
 });
 
 // Remove intermediate JavaScript files
 gulp.task('clean-js', ['minify-js'], function () {
-  return gulp.src([tmp_js_path + '/*.js'], {read: false}).
+  return gulp.src([tmp_js_path + '/**/*.js'], {read: false}).
               pipe(clean().on('error', on_error));
 });
 

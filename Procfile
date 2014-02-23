@@ -1,2 +1,1 @@
-thin: bundle exec thin start
-gulp: gulp
+web: bundle exec thin start -R config.ru -e $RACK_ENV -p $PORT
