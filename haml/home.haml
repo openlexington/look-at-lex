@@ -1,13 +1,36 @@
-%section{ng: {controller: 'HomeController'}}
-  %h2 2014 Lexington, KY Budget
-  .row
-    .col-md-6{ng: {controller: 'AllFundsChartController'}}
-      %h3
-        All Funds
-        %i.fa.fa-spinner.fa-spin{ng: {show: 'loading.all_funds_chart'}}
-      #all-funds-pie.chart-wrapper
-    .col-md-6{ng: {controller: 'GeneralServicesChartController'}}
-      %h3
-        General Services
-        %i.fa.fa-spinner.fa-spin{ng: {show: 'loading.general_services_chart'}}
-      #general-services-pie.chart-wrapper
+.home{ng: {controller: 'HomeController'}}
+  %section
+    %h2 2014 Lexington, KY Budget
+    .row
+      .col-md-6{ng: {controller: 'AllFundsChartController'}}
+        %h3
+          All Funds
+          %i.fa.fa-spinner.fa-spin{ng: {show: 'loading.all_funds_chart'}}
+        #all-funds-pie.chart-wrapper
+      .col-md-6{ng: {controller: 'GeneralServicesChartController'}}
+        %h3
+          General Services
+          %i.fa.fa-spinner.fa-spin{ng: {show: 'loading.general_services_chart'}}
+        #general-services-pie.chart-wrapper
+  %hr
+  %table.table.table-striped{ng: {show: 'table_data'}}
+    %thead
+      %tr
+        %th Fund
+        %th Division
+        %th Program
+        %th Account
+        %th.text-right Adopted
+    %tbody
+      %tr{ng: {repeat: 'row in page_budget_data = (table_data | startFrom:(page_info.page - 1) * page_info.per_page | limitTo:page_info.per_page)'}}
+        %td
+          {{row.fund_name}}
+        %td
+          {{row.division_name}}
+        %td
+          {{row.program_name}}
+        %td
+          {{row.account_name}}
+        %td.nowrap.text-right
+          {{row.fy_2014_adopted | currency}}
+  %div{ng: {include: "'pagination.html'"}}

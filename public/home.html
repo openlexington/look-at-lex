@@ -1,19 +1,53 @@
-<section ng-controller='HomeController'>
-  <h2>2014 Lexington, KY Budget</h2>
-  <div class='row'>
-    <div class='col-md-6' ng-controller='AllFundsChartController'>
-      <h3>
-        All Funds
-        <i class='fa fa-spinner fa-spin' ng-show='loading.all_funds_chart'></i>
-      </h3>
-      <div class='chart-wrapper' id='all-funds-pie'></div>
+<div class='home' ng-controller='HomeController'>
+  <section>
+    <h2>2014 Lexington, KY Budget</h2>
+    <div class='row'>
+      <div class='col-md-6' ng-controller='AllFundsChartController'>
+        <h3>
+          All Funds
+          <i class='fa fa-spinner fa-spin' ng-show='loading.all_funds_chart'></i>
+        </h3>
+        <div class='chart-wrapper' id='all-funds-pie'></div>
+      </div>
+      <div class='col-md-6' ng-controller='GeneralServicesChartController'>
+        <h3>
+          General Services
+          <i class='fa fa-spinner fa-spin' ng-show='loading.general_services_chart'></i>
+        </h3>
+        <div class='chart-wrapper' id='general-services-pie'></div>
+      </div>
     </div>
-    <div class='col-md-6' ng-controller='GeneralServicesChartController'>
-      <h3>
-        General Services
-        <i class='fa fa-spinner fa-spin' ng-show='loading.general_services_chart'></i>
-      </h3>
-      <div class='chart-wrapper' id='general-services-pie'></div>
-    </div>
-  </div>
-</section>
+  </section>
+  <hr>
+  <table class='table table-striped' ng-show='table_data'>
+    <thead>
+      <tr>
+        <th>Fund</th>
+        <th>Division</th>
+        <th>Program</th>
+        <th>Account</th>
+        <th class='text-right'>Adopted</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat='row in page_budget_data = (table_data | startFrom:(page_info.page - 1) * page_info.per_page | limitTo:page_info.per_page)'>
+        <td>
+          {{row.fund_name}}
+        </td>
+        <td>
+          {{row.division_name}}
+        </td>
+        <td>
+          {{row.program_name}}
+        </td>
+        <td>
+          {{row.account_name}}
+        </td>
+        <td class='nowrap text-right'>
+          {{row.fy_2014_adopted | currency}}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div ng-include="'pagination.html'"></div>
+</div>

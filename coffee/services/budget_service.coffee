@@ -21,11 +21,8 @@ lex_app.factory 'Budget', ($http) ->
           group[value_property] = 0
           new_group = true
         value = obj[value_property]
-        if typeof (value) isnt 'undefined' and value isnt ''
-          float_value = parseFloat(value.replace(/,/, ''))
-          # Parentheses in value, don't include
-          if value.indexOf('(') < 0 or value.indexOf(')') < 0
-            group[value_property] += float_value
+        if obj.fund
+          group[value_property] += value
         grouped_data.push(group) if new_group
 
       value_sorter = (a, b) ->
