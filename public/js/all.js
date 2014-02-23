@@ -289,6 +289,10 @@ lex_app.config([
       templateUrl: '/home.html',
       controller: lex_app.HomeController
     });
+    $routeProvider.when('/page/:page', {
+      templateUrl: '/home.html',
+      controller: lex_app.HomeController
+    });
     return $routeProvider.otherwise({
       redirectTo: '/'
     });
@@ -613,17 +617,21 @@ var HomeController,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 HomeController = (function() {
-  function HomeController($scope, $http, Budget) {
+  function HomeController($scope, $location, $routeParams, $http, Budget) {
     this.$scope = $scope;
+    this.$location = $location;
     this.on_page_change = __bind(this.on_page_change, this);
     $scope.budget_data = Budget.data;
     $scope.page_info = {
       num_pages: 1,
-      page: 1,
+      page: $routeParams.page || 1,
       per_page: 15,
       window_size: 10,
       windows: []
     };
+    if ($scope.page_info.page < 1) {
+      $scope.page_info.page = 1;
+    }
     $scope.$watch('budget_data.length', (function(_this) {
       return function() {
         var row;
@@ -667,7 +675,7 @@ HomeController = (function() {
   };
 
   HomeController.prototype.on_page_change = function(new_page) {
-    return this.$scope.page_info.page = new_page;
+    return this.$location.path("/page/" + new_page);
   };
 
   return HomeController;

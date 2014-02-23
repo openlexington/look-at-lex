@@ -4,6 +4,10 @@ lex_app.config(['$routeProvider', '$locationProvider', '$httpProvider', ($routeP
     templateUrl: '/home.html'
     controller: lex_app.HomeController
 
+  $routeProvider.when '/page/:page',
+    templateUrl: '/home.html'
+    controller: lex_app.HomeController
+
   $routeProvider.otherwise
     redirectTo: '/'
 ])
