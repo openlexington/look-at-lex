@@ -95,3 +95,5 @@ class PieChart
     @legend.append('text').attr('class', 'legend-label').
             attr('x', 24).attr('y', 9).attr('dy', '.35em').
             text((i) => @data[i][@label_key])
+
+(exports ? this).PieChart = PieChart
