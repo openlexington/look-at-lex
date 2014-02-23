@@ -1,28 +1,26 @@
-class Chart
-  constructor: (selector, color) ->
+class PieChart
+  constructor: (selector, color, value_property) ->
     @selector = selector
     @color = color
-    @container_width = $(@selector).parent().innerWidth()
+    @value_property = value_property
     @legend_left_padding = 10
+    @line_height = 20
+    @container_width = $(@selector).parent().innerWidth()
     @width = Math.floor(@container_width / 2.5) - @legend_left_padding
     @height = @width
-    @line_height = 20
+    @radius = @width / 2
+    @label_radius = @radius + 30
+    @arc = d3.svg.arc().outerRadius(@radius)
+    @pie = d3.layout.pie().value((d) => d[@value_property])
 
   create_root: (data) ->
     @data = data
     @legend_height = @data.length * @line_height
     @height = @legend_height if @legend_height > @height
     @vis = d3.select(@selector).append('svg:svg').attr('class', 'chart pie').
-              data([@data]).attr('width', @width).attr('height', @height)
-
-  initialize_pie: (value_property) ->
-    @value_property = value_property
-    @radius = @width / 2
-    @label_radius = @radius + 30
-    @vis = @vis.append('svg:g').
-                attr('transform', "translate(#{@radius},#{@radius})")
-    @arc = d3.svg.arc().outerRadius(@radius)
-    @pie = d3.layout.pie().value((d) => d[@value_property])
+              data([@data]).attr('width', @width).attr('height', @height).
+              append('svg:g').
+              attr('transform', "translate(#{@radius},#{@radius})")
 
   create_pie_slices: (get_title) ->
     @arcs = @vis.selectAll('g.slice').data(@pie).enter().append('svg:g').

@@ -1,18 +1,3 @@
-
-format_dollars = (dollars) ->
-  numeral(dollars).format "($ 0.0 a)"
-
-format_long_dollars = (dollars) ->
-  numeral(dollars).format "$ 0,0[.]00"
-
-setup_chart = (selector, color, data, label_key) ->
-  chart = new Chart(selector, color)
-  chart.create_root data
-  chart.initialize_pie 'fy_2014_adopted'
-  chart.create_pie_slices (value) -> numeral(value).format "$ 0,0[.]00"
-  chart.label_pie_slices (value) -> numeral(value).format "($ 0.0 a)"
-  chart.add_legend label_key
-
 group_data = (data, key, value_property) ->
   grouped_data = []
   get_group = (key_value) ->
@@ -65,15 +50,29 @@ extract_fund_data = (fund, data) ->
     fund_data.push(datum)
   fund_data
 
+setup_all_funds_chart = (all_data) ->
+  all_funds_data = group_data(all_data, 'fund_name', 'fy_2014_adopted')
+  color = d3.scale.category20()
+  chart = new PieChart('#all-funds-pie', color, 'fy_2014_adopted')
+  chart.create_root all_funds_data
+  chart.create_pie_slices (value) -> numeral(value).format "$ 0,0[.]00"
+  chart.label_pie_slices (value) -> numeral(value).format "($ 0.0 a)"
+  chart.add_legend 'fund_name'
+
+setup_general_services_chart = (all_data) ->
+  general_services_data = group_data(extract_fund_data(1101, all_data),
+                                     'division_name', 'fy_2014_adopted')
+  color = d3.scale.category20()
+  chart = new PieChart('#general-services-pie', color, 'fy_2014_adopted')
+  chart.create_root general_services_data
+  chart.create_pie_slices (value) -> numeral(value).format "$ 0,0[.]00"
+  chart.label_pie_slices (value) -> numeral(value).format "($ 0.0 a)"
+  chart.add_legend 'division_name'
+
 $ ->
   $('[data-toggle="tooltip"]').tooltip()
   json_url = '/2014-lexington-ky-budget.json'
   $.getJSON json_url, (response) ->
     all_data = response
-    all_funds_data = group_data(all_data, 'fund_name', 'fy_2014_adopted')
-    setup_chart '#all-funds-pie', d3.scale.category20(), all_funds_data,
-                'fund_name'
-    general_services_data = group_data(extract_fund_data(1101, all_data),
-                                       'division_name', 'fy_2014_adopted')
-    setup_chart '#general-services-pie', d3.scale.category20(),
-                general_services_data, 'division_name'
+    setup_all_funds_chart all_data
+    setup_general_services_chart all_data
