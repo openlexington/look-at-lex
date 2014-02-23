@@ -65,6 +65,7 @@ gulp.task('minify-js', ['coffee'], function() {
                    vendor_js_path + '/d3.min.js',
                    vendor_js_path + '/bootstrap.min.js',
                    vendor_js_path + '/numeral.min.js',
+                   tmp_js_path + '/chart.js',
                    tmp_js_path + '/main.js']).
               pipe(concat('all.js').on('error', on_error)).
               pipe(gulp.dest('./public/js'));
