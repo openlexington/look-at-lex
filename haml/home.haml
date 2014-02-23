@@ -1,9 +1,13 @@
 %section{ng: {controller: 'HomeController'}}
   %h2 2014 Lexington, KY Budget
   .row
-    .col-md-6
-      %h3 All Funds
-      #all-funds-pie.chart-wrapper{ng: {controller: 'AllFundsChartController'}}
-    .col-md-6
-      %h3 General Services
-      #general-services-pie.chart-wrapper{ng: {controller: 'GeneralServicesChartController'}}
+    .col-md-6{ng: {controller: 'AllFundsChartController'}}
+      %h3
+        All Funds
+        %i.fa.fa-spinner.fa-spin{ng: {show: 'loading.all_funds_chart'}}
+      #all-funds-pie.chart-wrapper
+    .col-md-6{ng: {controller: 'GeneralServicesChartController'}}
+      %h3
+        General Services
+        %i.fa.fa-spinner.fa-spin{ng: {show: 'loading.general_services_chart'}}
+      #general-services-pie.chart-wrapper

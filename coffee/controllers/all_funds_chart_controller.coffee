@@ -1,5 +1,7 @@
 class AllFundsChartController
-  constructor: ($scope, @Budget) ->
+  constructor: (@$scope, @Budget) ->
+    $scope.loading =
+      all_funds_chart: true
     $scope.$watch 'budget_data.length', =>
       return unless $scope.budget_data.length > 0
       @on_budget_loaded $scope.budget_data
@@ -13,5 +15,6 @@ class AllFundsChartController
     chart.create_pie_slices (value) -> numeral(value).format "$ 0,0[.]00"
     chart.label_pie_slices (value) -> numeral(value).format "($ 0.0 a)"
     chart.add_legend 'fund_name'
+    @$scope.loading.all_funds_chart = false
 
 lex_app.controller 'AllFundsChartController', AllFundsChartController

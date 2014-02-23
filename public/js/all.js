@@ -533,7 +533,11 @@ var AllFundsChartController;
 
 AllFundsChartController = (function() {
   function AllFundsChartController($scope, Budget) {
+    this.$scope = $scope;
     this.Budget = Budget;
+    $scope.loading = {
+      all_funds_chart: true
+    };
     $scope.$watch('budget_data.length', (function(_this) {
       return function() {
         if (!($scope.budget_data.length > 0)) {
@@ -556,7 +560,8 @@ AllFundsChartController = (function() {
     chart.label_pie_slices(function(value) {
       return numeral(value).format("($ 0.0 a)");
     });
-    return chart.add_legend('fund_name');
+    chart.add_legend('fund_name');
+    return this.$scope.loading.all_funds_chart = false;
   };
 
   return AllFundsChartController;
@@ -569,7 +574,11 @@ var GeneralServicesChartController;
 
 GeneralServicesChartController = (function() {
   function GeneralServicesChartController($scope, Budget) {
+    this.$scope = $scope;
     this.Budget = Budget;
+    $scope.loading = {
+      general_services_chart: true
+    };
     $scope.$watch('budget_data.length', (function(_this) {
       return function() {
         if (!($scope.budget_data.length > 0)) {
@@ -593,7 +602,8 @@ GeneralServicesChartController = (function() {
     chart.label_pie_slices(function(value) {
       return numeral(value).format("($ 0.0 a)");
     });
-    return chart.add_legend('division_name');
+    chart.add_legend('division_name');
+    return this.$scope.loading.general_services_chart = false;
   };
 
   return GeneralServicesChartController;
