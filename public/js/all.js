@@ -426,9 +426,19 @@ PieChart = (function() {
 
 (typeof exports !== "undefined" && exports !== null ? exports : this).PieChart = PieChart;
 
-lex_app.controller('HomeController', function($scope, $http) {
-  var extract_fund_data, group_data, setup_all_funds_chart, setup_general_services_chart;
-  group_data = function(data, key, value_property) {
+var HomeController;
+
+HomeController = (function() {
+  function HomeController($scope, $http) {
+    $http.get('/2014-lexington-ky-budget.json').success((function(_this) {
+      return function(data) {
+        _this.setup_all_funds_chart(data);
+        return _this.setup_general_services_chart(data);
+      };
+    })(this));
+  }
+
+  HomeController.prototype.group_data = function(data, key, value_property) {
     var end_slice, float_value, get_group, group, grouped_data, groups_with_other, grp, main_groups, max_slices, new_group, obj, other_group, other_groups, value, value_sorter, _i, _j, _len, _len1;
     grouped_data = [];
     get_group = function(key_value) {
@@ -494,7 +504,8 @@ lex_app.controller('HomeController', function($scope, $http) {
     groups_with_other.sort(value_sorter);
     return groups_with_other;
   };
-  extract_fund_data = function(fund, data) {
+
+  HomeController.prototype.extract_fund_data = function(fund, data) {
     var datum, fund_data, _i, _len;
     fund_data = [];
     for (_i = 0, _len = data.length; _i < _len; _i++) {
@@ -505,9 +516,10 @@ lex_app.controller('HomeController', function($scope, $http) {
     }
     return fund_data;
   };
-  setup_all_funds_chart = function(all_data) {
+
+  HomeController.prototype.setup_all_funds_chart = function(all_data) {
     var all_funds_data, chart, color;
-    all_funds_data = group_data(all_data, 'fund_name', 'fy_2014_adopted');
+    all_funds_data = this.group_data(all_data, 'fund_name', 'fy_2014_adopted');
     color = d3.scale.category20();
     chart = new PieChart('#all-funds-pie', color, 'fy_2014_adopted');
     chart.create_root(all_funds_data);
@@ -519,9 +531,10 @@ lex_app.controller('HomeController', function($scope, $http) {
     });
     return chart.add_legend('fund_name');
   };
-  setup_general_services_chart = function(all_data) {
+
+  HomeController.prototype.setup_general_services_chart = function(all_data) {
     var chart, color, general_services_data;
-    general_services_data = group_data(extract_fund_data(1101, all_data), 'division_name', 'fy_2014_adopted');
+    general_services_data = this.group_data(this.extract_fund_data(1101, all_data), 'division_name', 'fy_2014_adopted');
     color = d3.scale.category20();
     chart = new PieChart('#general-services-pie', color, 'fy_2014_adopted');
     chart.create_root(general_services_data);
@@ -533,10 +546,9 @@ lex_app.controller('HomeController', function($scope, $http) {
     });
     return chart.add_legend('division_name');
   };
-  return $scope.init = function() {
-    return $http.get('/2014-lexington-ky-budget.json').success(function(data) {
-      setup_all_funds_chart(data);
-      return setup_general_services_chart(data);
-    });
-  };
-});
+
+  return HomeController;
+
+})();
+
+lex_app.controller('HomeController', HomeController);

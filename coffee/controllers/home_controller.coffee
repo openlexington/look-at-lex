@@ -1,5 +1,10 @@
-lex_app.controller 'HomeController', ($scope, $http) ->
-  group_data = (data, key, value_property) ->
+class HomeController
+  constructor: ($scope, $http) ->
+    $http.get('/2014-lexington-ky-budget.json').success (data) =>
+      @setup_all_funds_chart data
+      @setup_general_services_chart data
+
+  group_data: (data, key, value_property) ->
     grouped_data = []
     get_group = (key_value) ->
       for obj in grouped_data
@@ -45,14 +50,14 @@ lex_app.controller 'HomeController', ($scope, $http) ->
     groups_with_other.sort value_sorter
     groups_with_other
 
-  extract_fund_data = (fund, data) ->
+  extract_fund_data: (fund, data) ->
     fund_data = []
     for datum in data when datum.fund is fund
       fund_data.push(datum)
     fund_data
 
-  setup_all_funds_chart = (all_data) ->
-    all_funds_data = group_data(all_data, 'fund_name', 'fy_2014_adopted')
+  setup_all_funds_chart: (all_data) ->
+    all_funds_data = @group_data(all_data, 'fund_name', 'fy_2014_adopted')
     color = d3.scale.category20()
     chart = new PieChart('#all-funds-pie', color, 'fy_2014_adopted')
     chart.create_root all_funds_data
@@ -60,9 +65,9 @@ lex_app.controller 'HomeController', ($scope, $http) ->
     chart.label_pie_slices (value) -> numeral(value).format "($ 0.0 a)"
     chart.add_legend 'fund_name'
 
-  setup_general_services_chart = (all_data) ->
-    general_services_data = group_data(extract_fund_data(1101, all_data),
-                                       'division_name', 'fy_2014_adopted')
+  setup_general_services_chart: (all_data) ->
+    general_services_data = @group_data(@extract_fund_data(1101, all_data),
+                                        'division_name', 'fy_2014_adopted')
     color = d3.scale.category20()
     chart = new PieChart('#general-services-pie', color, 'fy_2014_adopted')
     chart.create_root general_services_data
@@ -70,7 +75,4 @@ lex_app.controller 'HomeController', ($scope, $http) ->
     chart.label_pie_slices (value) -> numeral(value).format "($ 0.0 a)"
     chart.add_legend 'division_name'
 
-  $scope.init = ->
-    $http.get('/2014-lexington-ky-budget.json').success (data) ->
-      setup_all_funds_chart data
-      setup_general_services_chart data
+lex_app.controller 'HomeController', HomeController
