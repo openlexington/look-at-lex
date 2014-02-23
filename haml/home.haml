@@ -13,7 +13,7 @@
           %i.fa.fa-spinner.fa-spin{ng: {show: 'loading.general_services_chart'}}
         #general-services-pie.chart-wrapper
   %hr
-  %table.table.table-striped{ng: {show: 'table_data'}}
+  %table.table.table-striped{ng: {if: 'table_data'}}
     %thead
       %tr
         %th Fund

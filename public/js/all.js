@@ -620,17 +620,18 @@ HomeController = (function() {
   function HomeController($scope, $location, $routeParams, $http, Budget) {
     this.$scope = $scope;
     this.$location = $location;
+    this.show_all_pages = __bind(this.show_all_pages, this);
     this.on_page_change = __bind(this.on_page_change, this);
     $scope.budget_data = Budget.data;
     $scope.page_info = {
       num_pages: 1,
-      page: $routeParams.page || 1,
+      page: parseInt($routeParams.page || 1, 10),
       per_page: 15,
       window_size: 10,
       windows: []
     };
     if ($scope.page_info.page < 1) {
-      $scope.page_info.page = 1;
+      this.on_page_change(1);
     }
     $scope.$watch('budget_data.length', (function(_this) {
       return function() {
@@ -651,23 +652,28 @@ HomeController = (function() {
           return _results;
         })();
         $scope.page_info.num_pages = Math.ceil($scope.table_data.length / $scope.page_info.per_page);
+        if ($scope.page_info.page > $scope.page_info.num_pages) {
+          _this.on_page_change($scope.page_info.num_pages);
+        }
         return _this.set_page_windows();
       };
     })(this));
+    $scope.show_all_pages = this.show_all_pages;
     $scope.page = this.on_page_change;
   }
 
   HomeController.prototype.set_page_windows = function() {
-    var i, page_window, start_window, _i, _j, _ref, _ref1;
+    var i, page_window, start_window, window_limit, _i, _j, _ref;
     page_window = [];
-    for (i = _i = 0, _ref = this.$scope.page_info.window_size; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+    window_limit = Math.min(this.$scope.page_info.window_size, this.$scope.page_info.num_pages);
+    for (i = _i = 0; 0 <= window_limit ? _i < window_limit : _i > window_limit; i = 0 <= window_limit ? ++_i : --_i) {
       page_window.push(i);
     }
     this.$scope.page_info.windows.push(page_window);
     if (this.$scope.page_info.num_pages > this.$scope.page_info.window_size) {
       page_window = [];
       start_window = this.$scope.page_info.num_pages - this.$scope.page_info.window_size;
-      for (i = _j = start_window, _ref1 = this.$scope.page_info.num_pages; start_window <= _ref1 ? _j < _ref1 : _j > _ref1; i = start_window <= _ref1 ? ++_j : --_j) {
+      for (i = _j = start_window, _ref = this.$scope.page_info.num_pages; start_window <= _ref ? _j < _ref : _j > _ref; i = start_window <= _ref ? ++_j : --_j) {
         page_window.push(i);
       }
       return this.$scope.page_info.windows.push(page_window);
@@ -676,6 +682,16 @@ HomeController = (function() {
 
   HomeController.prototype.on_page_change = function(new_page) {
     return this.$location.path("/page/" + new_page);
+  };
+
+  HomeController.prototype.show_all_pages = function() {
+    var i, page_window, _i, _ref;
+    this.$scope.page_info.windows.length = 0;
+    page_window = [];
+    for (i = _i = 0, _ref = this.$scope.page_info.num_pages; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+      page_window.push(i);
+    }
+    return this.$scope.page_info.windows.push(page_window);
   };
 
   return HomeController;
