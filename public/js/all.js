@@ -620,16 +620,51 @@ HomeController = (function() {
     $scope.page_info = {
       num_pages: 1,
       page: 1,
-      per_page: 20
+      per_page: 15,
+      window_size: 10,
+      windows: []
     };
-    $scope.$watch('budget_data.length', function() {
-      if (!($scope.budget_data.length > 0)) {
-        return;
-      }
-      return $scope.page_info.num_pages = Math.ceil($scope.budget_data.length / $scope.page_info.per_page);
-    });
+    $scope.$watch('budget_data.length', (function(_this) {
+      return function() {
+        var row;
+        if (!($scope.budget_data.length > 0)) {
+          return;
+        }
+        $scope.table_data = (function() {
+          var _i, _len, _ref, _results;
+          _ref = $scope.budget_data;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            row = _ref[_i];
+            if (row.fund) {
+              _results.push(row);
+            }
+          }
+          return _results;
+        })();
+        $scope.page_info.num_pages = Math.ceil($scope.table_data.length / $scope.page_info.per_page);
+        return _this.set_page_windows();
+      };
+    })(this));
     $scope.page = this.on_page_change;
   }
+
+  HomeController.prototype.set_page_windows = function() {
+    var i, page_window, start_window, _i, _j, _ref, _ref1;
+    page_window = [];
+    for (i = _i = 0, _ref = this.$scope.page_info.window_size; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+      page_window.push(i);
+    }
+    this.$scope.page_info.windows.push(page_window);
+    if (this.$scope.page_info.num_pages > this.$scope.page_info.window_size) {
+      page_window = [];
+      start_window = this.$scope.page_info.num_pages - this.$scope.page_info.window_size;
+      for (i = _j = start_window, _ref1 = this.$scope.page_info.num_pages; start_window <= _ref1 ? _j < _ref1 : _j > _ref1; i = start_window <= _ref1 ? ++_j : --_j) {
+        page_window.push(i);
+      }
+      return this.$scope.page_info.windows.push(page_window);
+    }
+  };
 
   HomeController.prototype.on_page_change = function(new_page) {
     return this.$scope.page_info.page = new_page;
@@ -645,16 +680,5 @@ lex_app.filter('startFrom', function() {
   return function(input, start) {
     start = Math.abs(start);
     return input.slice(start);
-  };
-});
-
-lex_app.filter('range', function() {
-  return function(input, total) {
-    var i, _i;
-    total = parseInt(total, 10);
-    for (i = _i = 0; 0 <= total ? _i < total : _i > total; i = 0 <= total ? ++_i : --_i) {
-      input.push(i);
-    }
-    return input;
   };
 });

@@ -13,7 +13,7 @@
           %i.fa.fa-spinner.fa-spin{ng: {show: 'loading.general_services_chart'}}
         #general-services-pie.chart-wrapper
   %hr
-  %table.table.table-striped{ng: {show: 'budget_data.length > 0'}}
+  %table.table.table-striped{ng: {show: 'table_data'}}
     %thead
       %tr
         %th Fund
@@ -22,7 +22,7 @@
         %th Account
         %th.text-right Adopted
     %tbody
-      %tr{ng: {repeat: 'row in page_budget_data = (budget_data | startFrom:(page_info.page - 1) * page_info.per_page | limitTo:page_info.per_page)'}}
+      %tr{ng: {repeat: 'row in page_budget_data = (table_data | startFrom:(page_info.page - 1) * page_info.per_page | limitTo:page_info.per_page)'}}
         %td
           {{row.fund_name}}
         %td

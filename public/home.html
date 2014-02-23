@@ -19,7 +19,7 @@
     </div>
   </section>
   <hr>
-  <table class='table table-striped' ng-show='budget_data.length &gt; 0'>
+  <table class='table table-striped' ng-show='table_data'>
     <thead>
       <tr>
         <th>Fund</th>
@@ -30,7 +30,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat='row in page_budget_data = (budget_data | startFrom:(page_info.page - 1) * page_info.per_page | limitTo:page_info.per_page)'>
+      <tr ng-repeat='row in page_budget_data = (table_data | startFrom:(page_info.page - 1) * page_info.per_page | limitTo:page_info.per_page)'>
         <td>
           {{row.fund_name}}
         </td>
