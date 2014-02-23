@@ -24,101 +24,136 @@ if("undefined"==typeof jQuery)throw new Error("Bootstrap's JavaScript requires j
  * http://adamwdraper.github.com/Numeral-js/
  */
 (function(){function a(a){this._value=a}function b(a,b,c,d){var e,f,g=Math.pow(10,b);return f=(c(a*g)/g).toFixed(b),d&&(e=new RegExp("0{1,"+d+"}$"),f=f.replace(e,"")),f}function c(a,b,c){var d;return d=b.indexOf("$")>-1?e(a,b,c):b.indexOf("%")>-1?f(a,b,c):b.indexOf(":")>-1?g(a,b):i(a._value,b,c)}function d(a,b){var c,d,e,f,g,i=b,j=["KB","MB","GB","TB","PB","EB","ZB","YB"],k=!1;if(b.indexOf(":")>-1)a._value=h(b);else if(b===q)a._value=0;else{for("."!==o[p].delimiters.decimal&&(b=b.replace(/\./g,"").replace(o[p].delimiters.decimal,".")),c=new RegExp("[^a-zA-Z]"+o[p].abbreviations.thousand+"(?:\\)|(\\"+o[p].currency.symbol+")?(?:\\))?)?$"),d=new RegExp("[^a-zA-Z]"+o[p].abbreviations.million+"(?:\\)|(\\"+o[p].currency.symbol+")?(?:\\))?)?$"),e=new RegExp("[^a-zA-Z]"+o[p].abbreviations.billion+"(?:\\)|(\\"+o[p].currency.symbol+")?(?:\\))?)?$"),f=new RegExp("[^a-zA-Z]"+o[p].abbreviations.trillion+"(?:\\)|(\\"+o[p].currency.symbol+")?(?:\\))?)?$"),g=0;g<=j.length&&!(k=b.indexOf(j[g])>-1?Math.pow(1024,g+1):!1);g++);a._value=(k?k:1)*(i.match(c)?Math.pow(10,3):1)*(i.match(d)?Math.pow(10,6):1)*(i.match(e)?Math.pow(10,9):1)*(i.match(f)?Math.pow(10,12):1)*(b.indexOf("%")>-1?.01:1)*((b.split("-").length+Math.min(b.split("(").length-1,b.split(")").length-1))%2?1:-1)*Number(b.replace(/[^0-9\.]+/g,"")),a._value=k?Math.ceil(a._value):a._value}return a._value}function e(a,b,c){var d,e,f=b.indexOf("$"),g=b.indexOf("("),h=b.indexOf("-"),j="";return b.indexOf(" $")>-1?(j=" ",b=b.replace(" $","")):b.indexOf("$ ")>-1?(j=" ",b=b.replace("$ ","")):b=b.replace("$",""),e=i(a._value,b,c),1>=f?e.indexOf("(")>-1||e.indexOf("-")>-1?(e=e.split(""),d=1,(g>f||h>f)&&(d=0),e.splice(d,0,o[p].currency.symbol+j),e=e.join("")):e=o[p].currency.symbol+j+e:e.indexOf(")")>-1?(e=e.split(""),e.splice(-1,0,j+o[p].currency.symbol),e=e.join("")):e=e+j+o[p].currency.symbol,e}function f(a,b,c){var d,e="",f=100*a._value;return b.indexOf(" %")>-1?(e=" ",b=b.replace(" %","")):b=b.replace("%",""),d=i(f,b,c),d.indexOf(")")>-1?(d=d.split(""),d.splice(-1,0,e+"%"),d=d.join("")):d=d+e+"%",d}function g(a){var b=Math.floor(a._value/60/60),c=Math.floor((a._value-60*b*60)/60),d=Math.round(a._value-60*b*60-60*c);return b+":"+(10>c?"0"+c:c)+":"+(10>d?"0"+d:d)}function h(a){var b=a.split(":"),c=0;return 3===b.length?(c+=60*Number(b[0])*60,c+=60*Number(b[1]),c+=Number(b[2])):2===b.length&&(c+=60*Number(b[0]),c+=Number(b[1])),Number(c)}function i(a,c,d){var e,f,g,h,i,j,k=!1,l=!1,m=!1,n="",r=!1,s=!1,t=!1,u=!1,v=!1,w="",x="",y=Math.abs(a),z=["B","KB","MB","GB","TB","PB","EB","ZB","YB"],A="",B=!1;if(0===a&&null!==q)return q;if(c.indexOf("(")>-1?(k=!0,c=c.slice(1,-1)):c.indexOf("+")>-1&&(l=!0,c=c.replace(/\+/g,"")),c.indexOf("a")>-1&&(r=c.indexOf("aK")>=0,s=c.indexOf("aM")>=0,t=c.indexOf("aB")>=0,u=c.indexOf("aT")>=0,v=r||s||t||u,c.indexOf(" a")>-1?(n=" ",c=c.replace(" a","")):c=c.replace("a",""),y>=Math.pow(10,12)&&!v||u?(n+=o[p].abbreviations.trillion,a/=Math.pow(10,12)):y<Math.pow(10,12)&&y>=Math.pow(10,9)&&!v||t?(n+=o[p].abbreviations.billion,a/=Math.pow(10,9)):y<Math.pow(10,9)&&y>=Math.pow(10,6)&&!v||s?(n+=o[p].abbreviations.million,a/=Math.pow(10,6)):(y<Math.pow(10,6)&&y>=Math.pow(10,3)&&!v||r)&&(n+=o[p].abbreviations.thousand,a/=Math.pow(10,3))),c.indexOf("b")>-1)for(c.indexOf(" b")>-1?(w=" ",c=c.replace(" b","")):c=c.replace("b",""),g=0;g<=z.length;g++)if(e=Math.pow(1024,g),f=Math.pow(1024,g+1),a>=e&&f>a){w+=z[g],e>0&&(a/=e);break}return c.indexOf("o")>-1&&(c.indexOf(" o")>-1?(x=" ",c=c.replace(" o","")):c=c.replace("o",""),x+=o[p].ordinal(a)),c.indexOf("[.]")>-1&&(m=!0,c=c.replace("[.]",".")),h=a.toString().split(".")[0],i=c.split(".")[1],j=c.indexOf(","),i?(i.indexOf("[")>-1?(i=i.replace("]",""),i=i.split("["),A=b(a,i[0].length+i[1].length,d,i[1].length)):A=b(a,i.length,d),h=A.split(".")[0],A=A.split(".")[1].length?o[p].delimiters.decimal+A.split(".")[1]:"",m&&0===Number(A.slice(1))&&(A="")):h=b(a,null,d),h.indexOf("-")>-1&&(h=h.slice(1),B=!0),j>-1&&(h=h.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g,"$1"+o[p].delimiters.thousands)),0===c.indexOf(".")&&(h=""),(k&&B?"(":"")+(!k&&B?"-":"")+(!B&&l?"+":"")+h+A+(x?x:"")+(n?n:"")+(w?w:"")+(k&&B?")":"")}function j(a,b){o[a]=b}function k(a){var b=a.toString().split(".");return b.length<2?1:Math.pow(10,b[1].length)}function l(){var a=Array.prototype.slice.call(arguments);return a.reduce(function(a,b){var c=k(a),d=k(b);return c>d?c:d},-1/0)}var m,n="1.5.3",o={},p="en",q=null,r="0,0",s="undefined"!=typeof module&&module.exports;m=function(b){return m.isNumeral(b)?b=b.value():0===b||"undefined"==typeof b?b=0:Number(b)||(b=m.fn.unformat(b)),new a(Number(b))},m.version=n,m.isNumeral=function(b){return b instanceof a},m.language=function(a,b){if(!a)return p;if(a&&!b){if(!o[a])throw new Error("Unknown language : "+a);p=a}return(b||!o[a])&&j(a,b),m},m.languageData=function(a){if(!a)return o[p];if(!o[a])throw new Error("Unknown language : "+a);return o[a]},m.language("en",{delimiters:{thousands:",",decimal:"."},abbreviations:{thousand:"k",million:"m",billion:"b",trillion:"t"},ordinal:function(a){var b=a%10;return 1===~~(a%100/10)?"th":1===b?"st":2===b?"nd":3===b?"rd":"th"},currency:{symbol:"$"}}),m.zeroFormat=function(a){q="string"==typeof a?a:null},m.defaultFormat=function(a){r="string"==typeof a?a:"0.0"},"function"!=typeof Array.prototype.reduce&&(Array.prototype.reduce=function(a,b){"use strict";if(null===this||"undefined"==typeof this)throw new TypeError("Array.prototype.reduce called on null or undefined");if("function"!=typeof a)throw new TypeError(a+" is not a function");var c,d,e=this.length>>>0,f=!1;for(1<arguments.length&&(d=b,f=!0),c=0;e>c;++c)this.hasOwnProperty(c)&&(f?d=a(d,this[c],c,this):(d=this[c],f=!0));if(!f)throw new TypeError("Reduce of empty array with no initial value");return d}),m.fn=a.prototype={clone:function(){return m(this)},format:function(a,b){return c(this,a?a:r,void 0!==b?b:Math.round)},unformat:function(a){return"[object Number]"===Object.prototype.toString.call(a)?a:d(this,a?a:r)},value:function(){return this._value},valueOf:function(){return this._value},set:function(a){return this._value=Number(a),this},add:function(a){function b(a,b){return a+c*b}var c=l.call(null,this._value,a);return this._value=[this._value,a].reduce(b,0)/c,this},subtract:function(a){function b(a,b){return a-c*b}var c=l.call(null,this._value,a);return this._value=[a].reduce(b,this._value*c)/c,this},multiply:function(a){function b(a,b){var c=l(a,b);return a*c*b*c/(c*c)}return this._value=[this._value,a].reduce(b,1),this},divide:function(a){function b(a,b){var c=l(a,b);return a*c/(b*c)}return this._value=[this._value,a].reduce(b),this},difference:function(a){return Math.abs(m(this._value).subtract(a).value())}},s&&(module.exports=m),"undefined"==typeof ender&&(this.numeral=m),"function"==typeof define&&define.amd&&define([],function(){return m})}).call(this);
-var extract_fund_data, format_dollars, format_long_dollars, group_data, is_point_in_arc, setup_chart;
+var PieChart;
 
-is_point_in_arc = function(arc, pt, ptData, d3Arc) {
-  var angle, dist, r1, r2, theta1, theta2;
-  r1 = arc.innerRadius()(ptData);
-  r2 = arc.outerRadius()(ptData);
-  theta1 = arc.startAngle()(ptData);
-  theta2 = arc.endAngle()(ptData);
-  dist = pt.x * pt.x + pt.y * pt.y;
-  angle = Math.atan2(pt.x, -pt.y);
-  angle = (angle < 0 ? angle + Math.PI * 2 : angle);
-  return (r1 * r1 <= dist) && (dist <= r2 * r2) && (theta1 <= angle) && (angle <= theta2);
-};
-
-format_dollars = function(dollars) {
-  return numeral(dollars).format("($ 0.0 a)");
-};
-
-format_long_dollars = function(dollars) {
-  return numeral(dollars).format("$ 0,0[.]00");
-};
-
-setup_chart = function(selector, color, data, label_key) {
-  var arc, arcs, chart_area, container_width, height, label_radius, legend, legend_height, legend_left_padding, legend_width, line_height, pie, radius, vis, width;
-  chart_area = $(selector);
-  container_width = chart_area.parent().innerWidth();
-  legend_left_padding = 10;
-  width = Math.floor(container_width / 2.5) - legend_left_padding;
-  height = width;
-  line_height = 20;
-  legend_height = data.length * line_height;
-  if (legend_height > height) {
-    height = legend_height;
+PieChart = (function() {
+  function PieChart(selector, color, value_property) {
+    this.selector = selector;
+    this.color = color;
+    this.value_property = value_property;
+    this.legend_left_padding = 10;
+    this.line_height = 20;
+    this.container_width = $(this.selector).parent().innerWidth();
+    this.width = Math.floor(this.container_width / 2.5) - this.legend_left_padding;
+    this.height = this.width;
+    this.radius = this.width / 2;
+    this.label_radius = this.radius + 30;
+    this.arc = d3.svg.arc().outerRadius(this.radius);
+    this.pie = d3.layout.pie().value((function(_this) {
+      return function(d) {
+        return d[_this.value_property];
+      };
+    })(this));
   }
-  radius = width / 2;
-  label_radius = radius + 30;
-  vis = d3.select(selector).append('svg:svg').attr('class', 'chart pie').data([data]).attr('width', width).attr('height', height).append('svg:g').attr('transform', "translate(" + radius + "," + radius + ")");
-  arc = d3.svg.arc().outerRadius(radius);
-  pie = d3.layout.pie().value(function(d) {
-    return d.fy_2014_adopted;
-  });
-  arcs = vis.selectAll('g.slice').data(pie).enter().append('svg:g').attr('class', 'slice').attr('title', function(d, i) {
-    return format_long_dollars(d.data.fy_2014_adopted);
-  });
-  arcs.append('svg:path').attr('fill', function(d, i) {
-    return color(i);
-  }).attr('d', arc);
-  $('g.slice').tooltip({
-    container: 'body',
-    placement: 'right'
-  });
-  arcs.append('svg:text').attr('class', 'pie-label').attr('transform', function(d) {
-    d.innerRadius = 0;
-    d.outerRadius = radius;
-    return "translate(" + (arc.centroid(d)) + ")";
-  }).attr('dy', '.35em').style('text-anchor', 'middle').text(function(d) {
-    return format_dollars(d.data.fy_2014_adopted);
-  }).each(function(d) {
-    var bb, bottomLeft, bottomRight, center, topLeft, topRight;
-    bb = this.getBBox();
-    center = arc.centroid(d);
-    topLeft = {
-      x: center[0] + bb.x,
-      y: center[1] + bb.y
-    };
-    topRight = {
-      x: topLeft.x + bb.width,
-      y: topLeft.y
-    };
-    bottomLeft = {
-      x: topLeft.x,
-      y: topLeft.y + bb.height
-    };
-    bottomRight = {
-      x: topLeft.x + bb.width,
-      y: topLeft.y + bb.height
-    };
-    return d.visible = is_point_in_arc(arc, topLeft, d, arc) && is_point_in_arc(arc, topRight, d, arc) && is_point_in_arc(arc, bottomLeft, d, arc) && is_point_in_arc(arc, bottomRight, d, arc);
-  }).style('display', function(d) {
-    if (d.visible) {
-      return null;
-    } else {
-      return 'none';
+
+  PieChart.prototype.create_root = function(data) {
+    this.data = data;
+    this.legend_height = this.data.length * this.line_height;
+    if (this.legend_height > this.height) {
+      this.height = this.legend_height;
     }
-  });
-  legend_width = width * 1.2;
-  legend_height += (height / 2.0) - (legend_height / 2.0);
-  legend = d3.select(selector).append('svg').attr('class', 'legend').attr('width', legend_width).attr('height', legend_height).selectAll('g').data(color.domain().slice()).enter().append('g').attr('transform', function(d, i) {
-    return "translate(0," + (i * line_height) + ")";
-  });
-  legend.append('rect').attr('width', 18).attr('height', 18).style('fill', color);
-  return legend.append('text').attr('class', 'legend-label').attr('x', 24).attr('y', 9).attr('dy', '.35em').text(function(i) {
-    return data[i][label_key];
-  });
-};
+    return this.vis = d3.select(this.selector).append('svg:svg').attr('class', 'chart pie').data([this.data]).attr('width', this.width).attr('height', this.height).append('svg:g').attr('transform', "translate(" + this.radius + "," + this.radius + ")");
+  };
+
+  PieChart.prototype.create_pie_slices = function(get_title) {
+    this.arcs = this.vis.selectAll('g.slice').data(this.pie).enter().append('svg:g').attr('class', 'slice').attr('title', (function(_this) {
+      return function(d, i) {
+        return get_title(d.data[_this.value_property]);
+      };
+    })(this));
+    this.arcs.append('svg:path').attr('fill', (function(_this) {
+      return function(d, i) {
+        return _this.color(i);
+      };
+    })(this)).attr('d', this.arc);
+    return $('g.slice').tooltip({
+      container: 'body',
+      placement: 'right'
+    });
+  };
+
+  PieChart.prototype.is_point_in_arc = function(pt, pt_data) {
+    var angle, dist, r1, r2, theta1, theta2;
+    r1 = this.arc.innerRadius()(pt_data);
+    r2 = this.arc.outerRadius()(pt_data);
+    theta1 = this.arc.startAngle()(pt_data);
+    theta2 = this.arc.endAngle()(pt_data);
+    dist = pt.x * pt.x + pt.y * pt.y;
+    angle = Math.atan2(pt.x, -pt.y);
+    angle = (angle < 0 ? angle + Math.PI * 2 : angle);
+    return (r1 * r1 <= dist) && (dist <= r2 * r2) && (theta1 <= angle) && (angle <= theta2);
+  };
+
+  PieChart.prototype.label_pie_slices = function(get_label) {
+    var any_hidden, hide_if_doesnt_fit, labeler, me, set_visible_property, transformer;
+    transformer = (function(_this) {
+      return function(d) {
+        d.innerRadius = 0;
+        d.outerRadius = _this.radius;
+        return "translate(" + (_this.arc.centroid(d)) + ")";
+      };
+    })(this);
+    labeler = (function(_this) {
+      return function(d) {
+        return get_label(d.data[_this.value_property]);
+      };
+    })(this);
+    me = this;
+    set_visible_property = function(d) {
+      var bb, bottomLeft, bottomRight, center, topLeft, topRight;
+      bb = this.getBBox();
+      center = me.arc.centroid(d);
+      topLeft = {
+        x: center[0] + bb.x,
+        y: center[1] + bb.y
+      };
+      topRight = {
+        x: topLeft.x + bb.width,
+        y: topLeft.y
+      };
+      bottomLeft = {
+        x: topLeft.x,
+        y: topLeft.y + bb.height
+      };
+      bottomRight = {
+        x: topLeft.x + bb.width,
+        y: topLeft.y + bb.height
+      };
+      return d.visible = me.is_point_in_arc(topLeft, d) && me.is_point_in_arc(topRight, d) && me.is_point_in_arc(bottomLeft, d) && me.is_point_in_arc(bottomRight, d);
+    };
+    any_hidden = false;
+    hide_if_doesnt_fit = function(d) {
+      if (d.visible && !any_hidden) {
+        return null;
+      }
+      any_hidden = true;
+      return 'none';
+    };
+    return this.arcs.append('svg:text').attr('class', 'pie-label').attr('transform', transformer).attr('dy', '.35em').style('text-anchor', 'middle').text(labeler).each(set_visible_property).style('display', hide_if_doesnt_fit);
+  };
+
+  PieChart.prototype.add_legend = function(label_key) {
+    this.label_key = label_key;
+    this.legend_width = this.width * 1.2;
+    this.legend_height += (this.height / 2.0) - (this.legend_height / 2.0);
+    this.legend = d3.select(this.selector).append('svg').attr('class', 'legend').attr('width', this.legend_width).attr('height', this.legend_height).selectAll('g').data(this.color.domain().slice()).enter().append('g').attr('transform', (function(_this) {
+      return function(d, i) {
+        return "translate(0," + (i * _this.line_height) + ")";
+      };
+    })(this));
+    this.legend.append('rect').attr('width', 18).attr('height', 18).style('fill', this.color);
+    return this.legend.append('text').attr('class', 'legend-label').attr('x', 24).attr('y', 9).attr('dy', '.35em').text((function(_this) {
+      return function(i) {
+        return _this.data[i][_this.label_key];
+      };
+    })(this));
+  };
+
+  return PieChart;
+
+})();
+
+var extract_fund_data, group_data, setup_all_funds_chart, setup_general_services_chart;
 
 group_data = function(data, key, value_property) {
   var end_slice, float_value, get_group, group, grouped_data, groups_with_other, grp, main_groups, max_slices, new_group, obj, other_group, other_groups, value, value_sorter, _i, _j, _len, _len1;
@@ -168,7 +203,11 @@ group_data = function(data, key, value_property) {
   };
   grouped_data.sort(value_sorter);
   max_slices = 5;
-  end_slice = (grouped_data.length < max_slices ? grouped_data.length : max_slices);
+  if (grouped_data.length < max_slices) {
+    end_slice = grouped_data.length;
+  } else {
+    end_slice = max_slices;
+  }
   main_groups = grouped_data.slice(0, end_slice);
   other_groups = grouped_data.slice(end_slice, grouped_data.length);
   other_group = {};
@@ -195,16 +234,44 @@ extract_fund_data = function(fund, data) {
   return fund_data;
 };
 
+setup_all_funds_chart = function(all_data) {
+  var all_funds_data, chart, color;
+  all_funds_data = group_data(all_data, 'fund_name', 'fy_2014_adopted');
+  color = d3.scale.category20();
+  chart = new PieChart('#all-funds-pie', color, 'fy_2014_adopted');
+  chart.create_root(all_funds_data);
+  chart.create_pie_slices(function(value) {
+    return numeral(value).format("$ 0,0[.]00");
+  });
+  chart.label_pie_slices(function(value) {
+    return numeral(value).format("($ 0.0 a)");
+  });
+  return chart.add_legend('fund_name');
+};
+
+setup_general_services_chart = function(all_data) {
+  var chart, color, general_services_data;
+  general_services_data = group_data(extract_fund_data(1101, all_data), 'division_name', 'fy_2014_adopted');
+  color = d3.scale.category20();
+  chart = new PieChart('#general-services-pie', color, 'fy_2014_adopted');
+  chart.create_root(general_services_data);
+  chart.create_pie_slices(function(value) {
+    return numeral(value).format("$ 0,0[.]00");
+  });
+  chart.label_pie_slices(function(value) {
+    return numeral(value).format("($ 0.0 a)");
+  });
+  return chart.add_legend('division_name');
+};
+
 $(function() {
   var json_url;
   $('[data-toggle="tooltip"]').tooltip();
   json_url = '/2014-lexington-ky-budget.json';
   return $.getJSON(json_url, function(response) {
-    var all_data, all_funds_data, general_services_data;
+    var all_data;
     all_data = response;
-    all_funds_data = group_data(all_data, 'fund_name', 'fy_2014_adopted');
-    setup_chart('#all-funds-pie', d3.scale.category20(), all_funds_data, 'fund_name');
-    general_services_data = group_data(extract_fund_data(1101, all_data), 'division_name', 'fy_2014_adopted');
-    return setup_chart('#general-services-pie', d3.scale.category20(), general_services_data, 'division_name');
+    setup_all_funds_chart(all_data);
+    return setup_general_services_chart(all_data);
   });
 });
