@@ -60,26 +60,26 @@ setup_chart = function(selector, color, data, label_key) {
   }
   radius = width / 2;
   label_radius = radius + 30;
-  vis = d3.select(selector).append("svg:svg").attr("class", "chart pie").data([data]).attr("width", width).attr("height", height).append("svg:g").attr("transform", "translate(" + radius + "," + radius + ")");
+  vis = d3.select(selector).append('svg:svg').attr('class', 'chart pie').data([data]).attr('width', width).attr('height', height).append('svg:g').attr('transform', "translate(" + radius + "," + radius + ")");
   arc = d3.svg.arc().outerRadius(radius);
   pie = d3.layout.pie().value(function(d) {
     return d.fy_2014_adopted;
   });
-  arcs = vis.selectAll("g.slice").data(pie).enter().append("svg:g").attr("class", "slice").attr("title", function(d, i) {
+  arcs = vis.selectAll('g.slice').data(pie).enter().append('svg:g').attr('class', 'slice').attr('title', function(d, i) {
     return format_long_dollars(d.data.fy_2014_adopted);
   });
-  arcs.append("svg:path").attr("fill", function(d, i) {
+  arcs.append('svg:path').attr('fill', function(d, i) {
     return color(i);
-  }).attr("d", arc);
-  $("g.slice").tooltip({
-    container: "body",
-    placement: "right"
+  }).attr('d', arc);
+  $('g.slice').tooltip({
+    container: 'body',
+    placement: 'right'
   });
-  arcs.append("svg:text").attr("class", "pie-label").attr("transform", function(d) {
+  arcs.append('svg:text').attr('class', 'pie-label').attr('transform', function(d) {
     d.innerRadius = 0;
     d.outerRadius = radius;
-    return "translate(" + arc.centroid(d) + ")";
-  }).attr("dy", ".35em").style("text-anchor", "middle").text(function(d) {
+    return "translate(" + (arc.centroid(d)) + ")";
+  }).attr('dy', '.35em').style('text-anchor', 'middle').text(function(d) {
     return format_dollars(d.data.fy_2014_adopted);
   }).each(function(d) {
     var bb, bottomLeft, bottomRight, center, topLeft, topRight;
@@ -102,42 +102,39 @@ setup_chart = function(selector, color, data, label_key) {
       y: topLeft.y + bb.height
     };
     return d.visible = is_point_in_arc(arc, topLeft, d, arc) && is_point_in_arc(arc, topRight, d, arc) && is_point_in_arc(arc, bottomLeft, d, arc) && is_point_in_arc(arc, bottomRight, d, arc);
-  }).style("display", function(d) {
+  }).style('display', function(d) {
     if (d.visible) {
       return null;
     } else {
-      return "none";
+      return 'none';
     }
   });
   legend_width = width * 1.2;
   legend_height += (height / 2.0) - (legend_height / 2.0);
-  legend = d3.select(selector).append("svg").attr("class", "legend").attr("width", legend_width).attr("height", legend_height).selectAll("g").data(color.domain().slice()).enter().append("g").attr("transform", function(d, i) {
-    return "translate(0," + i * line_height + ")";
+  legend = d3.select(selector).append('svg').attr('class', 'legend').attr('width', legend_width).attr('height', legend_height).selectAll('g').data(color.domain().slice()).enter().append('g').attr('transform', function(d, i) {
+    return "translate(0," + (i * line_height) + ")";
   });
-  legend.append("rect").attr("width", 18).attr("height", 18).style("fill", color);
-  return legend.append("text").attr("class", "legend-label").attr("x", 24).attr("y", 9).attr("dy", ".35em").text(function(i) {
+  legend.append('rect').attr('width', 18).attr('height', 18).style('fill', color);
+  return legend.append('text').attr('class', 'legend-label').attr('x', 24).attr('y', 9).attr('dy', '.35em').text(function(i) {
     return data[i][label_key];
   });
 };
 
 group_data = function(data, key, value_property) {
-  var end_slice, float_value, get_group, group, grouped_data, groups_with_other, i, main_groups, max_slices, new_group, obj, other_group, other_groups, value, value_sorter;
+  var end_slice, float_value, get_group, group, grouped_data, groups_with_other, grp, main_groups, max_slices, new_group, obj, other_group, other_groups, value, value_sorter, _i, _j, _len, _len1;
   grouped_data = [];
   get_group = function(key_value) {
-    var i, obj;
-    i = 0;
-    while (i < grouped_data.length) {
-      obj = grouped_data[i];
+    var obj, _i, _len;
+    for (_i = 0, _len = grouped_data.length; _i < _len; _i++) {
+      obj = grouped_data[_i];
       if (obj[key] === key_value) {
         return obj;
       }
-      i++;
     }
-    return undefined;
+    return void 0;
   };
-  i = 0;
-  while (i < data.length) {
-    obj = data[i];
+  for (_i = 0, _len = data.length; _i < _len; _i++) {
+    obj = data[_i];
     group = get_group(obj[key]);
     new_group = false;
     if (typeof group === "undefined") {
@@ -147,16 +144,15 @@ group_data = function(data, key, value_property) {
       new_group = true;
     }
     value = obj[value_property];
-    if (typeof value !== "undefined" && value !== "") {
-      float_value = parseFloat(value.replace(/,/, ""));
-      if (value.indexOf("(") < 0 || value.indexOf(")") < 0) {
+    if (typeof value !== 'undefined' && value !== '') {
+      float_value = parseFloat(value.replace(/,/, ''));
+      if (value.indexOf('(') < 0 || value.indexOf(')') < 0) {
         group[value_property] += float_value;
       }
     }
     if (new_group) {
       grouped_data.push(group);
     }
-    i++;
   }
   value_sorter = function(a, b) {
     var a_value, b_value;
@@ -176,12 +172,11 @@ group_data = function(data, key, value_property) {
   main_groups = grouped_data.slice(0, end_slice);
   other_groups = grouped_data.slice(end_slice, grouped_data.length);
   other_group = {};
-  other_group[key] = "Other";
+  other_group[key] = 'Other';
   other_group[value_property] = 0;
-  i = 0;
-  while (i < other_groups.length) {
-    other_group[value_property] += other_groups[i][value_property];
-    i++;
+  for (_j = 0, _len1 = other_groups.length; _j < _len1; _j++) {
+    grp = other_groups[_j];
+    other_group[value_property] += grp[value_property];
   }
   groups_with_other = main_groups.concat(other_group);
   groups_with_other.sort(value_sorter);
@@ -189,29 +184,27 @@ group_data = function(data, key, value_property) {
 };
 
 extract_fund_data = function(fund, data) {
-  var fund_data, i, obj;
+  var datum, fund_data, _i, _len;
   fund_data = [];
-  i = 0;
-  while (i < data.length) {
-    obj = data[i];
-    if (obj.fund === fund) {
-      fund_data.push(obj);
+  for (_i = 0, _len = data.length; _i < _len; _i++) {
+    datum = data[_i];
+    if (datum.fund === fund) {
+      fund_data.push(datum);
     }
-    i++;
   }
   return fund_data;
 };
 
 $(function() {
   var json_url;
-  $("[data-toggle=\"tooltip\"]").tooltip();
-  json_url = "/2014-lexington-ky-budget.json";
+  $('[data-toggle="tooltip"]').tooltip();
+  json_url = '/2014-lexington-ky-budget.json';
   return $.getJSON(json_url, function(response) {
     var all_data, all_funds_data, general_services_data;
     all_data = response;
-    all_funds_data = group_data(all_data, "fund_name", "fy_2014_adopted");
-    setup_chart("#all-funds-pie", d3.scale.category20(), all_funds_data, "fund_name");
-    general_services_data = group_data(extract_fund_data(1101, all_data), "division_name", "fy_2014_adopted");
-    return setup_chart("#general-services-pie", d3.scale.category20(), general_services_data, "division_name");
+    all_funds_data = group_data(all_data, 'fund_name', 'fy_2014_adopted');
+    setup_chart('#all-funds-pie', d3.scale.category20(), all_funds_data, 'fund_name');
+    general_services_data = group_data(extract_fund_data(1101, all_data), 'division_name', 'fy_2014_adopted');
+    return setup_chart('#general-services-pie', d3.scale.category20(), general_services_data, 'division_name');
   });
 });
