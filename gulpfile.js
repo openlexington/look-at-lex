@@ -59,15 +59,14 @@ gulp.task('coffee', function() {
               pipe(gulp.dest(tmp_js_path));
 });
 
-// Combine JS files and minify them
+// Combine JS files
 gulp.task('minify-js', ['coffee'], function() {
   return gulp.src([vendor_js_path + '/jquery-1.10.2.min.js',
                    vendor_js_path + '/d3.min.js',
                    vendor_js_path + '/bootstrap.min.js',
                    vendor_js_path + '/numeral.min.js',
                    tmp_js_path + '/main.js']).
-              pipe(concat('all.min.js').on('error', on_error)).
-              pipe(uglify().on('error', on_error)).
+              pipe(concat('all.js').on('error', on_error)).
               pipe(gulp.dest('./public/js'));
 });
 
