@@ -66,8 +66,15 @@ class PieChart
       bottomRight =
         x: topLeft.x + bb.width
         y: topLeft.y + bb.height
-      d.visible = me.is_point_in_arc(topLeft, d) and me.is_point_in_arc(topRight, d) and me.is_point_in_arc(bottomLeft, d) and me.is_point_in_arc(bottomRight, d)
-    hide_if_doesnt_fit = (d) -> (if d.visible then null else 'none')
+      d.visible = me.is_point_in_arc(topLeft, d) and
+                  me.is_point_in_arc(topRight, d) and
+                  me.is_point_in_arc(bottomLeft, d) and
+                  me.is_point_in_arc(bottomRight, d)
+    any_hidden = false
+    hide_if_doesnt_fit = (d) ->
+      return null if d.visible && !any_hidden
+      any_hidden = true
+      'none'
     @arcs.append('svg:text').attr('class', 'pie-label').
           attr('transform', transformer).attr('dy', '.35em').
           style('text-anchor', 'middle').text(labeler).

@@ -85,7 +85,7 @@ PieChart = (function() {
   };
 
   PieChart.prototype.label_pie_slices = function(get_label) {
-    var hide_if_doesnt_fit, labeler, me, set_visible_property, transformer;
+    var any_hidden, hide_if_doesnt_fit, labeler, me, set_visible_property, transformer;
     transformer = (function(_this) {
       return function(d) {
         d.innerRadius = 0;
@@ -121,12 +121,13 @@ PieChart = (function() {
       };
       return d.visible = me.is_point_in_arc(topLeft, d) && me.is_point_in_arc(topRight, d) && me.is_point_in_arc(bottomLeft, d) && me.is_point_in_arc(bottomRight, d);
     };
+    any_hidden = false;
     hide_if_doesnt_fit = function(d) {
-      if (d.visible) {
+      if (d.visible && !any_hidden) {
         return null;
-      } else {
-        return 'none';
       }
+      any_hidden = true;
+      return 'none';
     };
     return this.arcs.append('svg:text').attr('class', 'pie-label').attr('transform', transformer).attr('dy', '.35em').style('text-anchor', 'middle').text(labeler).each(set_visible_property).style('display', hide_if_doesnt_fit);
   };
