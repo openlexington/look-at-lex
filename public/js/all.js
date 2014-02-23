@@ -445,7 +445,7 @@ lex_app.factory('Budget', function($http) {
     }
 
     BudgetService.prototype.group_data = function(raw_data, key, value_property) {
-      var end_slice, float_value, get_group, group, grouped_data, groups_with_other, grp, main_groups, max_slices, new_group, obj, other_group, other_groups, value, value_sorter, _i, _j, _len, _len1;
+      var end_slice, get_group, group, grouped_data, groups_with_other, grp, main_groups, max_slices, new_group, obj, other_group, other_groups, value, value_sorter, _i, _j, _len, _len1;
       grouped_data = [];
       get_group = function(key_value) {
         var obj, _i, _len;
@@ -468,11 +468,8 @@ lex_app.factory('Budget', function($http) {
           new_group = true;
         }
         value = obj[value_property];
-        if (typeof value !== 'undefined' && value !== '') {
-          float_value = parseFloat(value.replace(/,/, ''));
-          if (value.indexOf('(') < 0 || value.indexOf(')') < 0) {
-            group[value_property] += float_value;
-          }
+        if (obj.fund) {
+          group[value_property] += value;
         }
         if (new_group) {
           grouped_data.push(group);
@@ -612,15 +609,52 @@ GeneralServicesChartController = (function() {
 
 lex_app.controller('GeneralServicesChartController', GeneralServicesChartController);
 
-var HomeController;
+var HomeController,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 HomeController = (function() {
   function HomeController($scope, $http, Budget) {
+    this.$scope = $scope;
+    this.on_page_change = __bind(this.on_page_change, this);
     $scope.budget_data = Budget.data;
+    $scope.page_info = {
+      num_pages: 1,
+      page: 1,
+      per_page: 20
+    };
+    $scope.$watch('budget_data.length', function() {
+      if (!($scope.budget_data.length > 0)) {
+        return;
+      }
+      return $scope.page_info.num_pages = Math.ceil($scope.budget_data.length / $scope.page_info.per_page);
+    });
+    $scope.page = this.on_page_change;
   }
+
+  HomeController.prototype.on_page_change = function(new_page) {
+    return this.$scope.page_info.page = new_page;
+  };
 
   return HomeController;
 
 })();
 
 lex_app.controller('HomeController', HomeController);
+
+lex_app.filter('startFrom', function() {
+  return function(input, start) {
+    start = Math.abs(start);
+    return input.slice(start);
+  };
+});
+
+lex_app.filter('range', function() {
+  return function(input, total) {
+    var i, _i;
+    total = parseInt(total, 10);
+    for (i = _i = 0; 0 <= total ? _i < total : _i > total; i = 0 <= total ? ++_i : --_i) {
+      input.push(i);
+    }
+    return input;
+  };
+});

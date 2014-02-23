@@ -1,0 +1,27 @@
+<ul class='pagination' ng-show='page_info.num_pages &gt; 1'>
+  <li ng-if='1 !== page_info.page'>
+    <a ng-click='page(1)' tooltip='First Page'>
+      &laquo;
+    </a>
+  </li>
+  <li ng-if='1 !== page_info.page'>
+    <a ng-click='page(page_info.page - 1)' tooltip='Previous Page'>
+      &lt;
+    </a>
+  </li>
+  <li ng-class='{active: i + 1 === page_info.page}' ng-repeat='i in [] | range:page_info.num_pages'>
+    <a ng-click='page(i+1)'>
+      {{i + 1}}
+    </a>
+  </li>
+  <li ng-if='page_info.num_pages !== page_info.page'>
+    <a ng-click='page(page_info.page + 1)' tooltip='Next Page'>
+      &gt;
+    </a>
+  </li>
+  <li ng-if='page_info.num_pages !== page_info.page'>
+    <a ng-click='page(page_info.num_pages)' tooltip='Last Page'>
+      &raquo;
+    </a>
+  </li>
+</ul>

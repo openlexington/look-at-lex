@@ -1,0 +1,16 @@
+%ul.pagination{ng: {show: 'page_info.num_pages > 1'}}
+  %li{ng: {if: '1 !== page_info.page'}}
+    %a{tooltip: "First Page", ng: {click: 'page(1)'}}
+      &laquo;
+  %li{ng: {if: '1 !== page_info.page'}}
+    %a{tooltip: "Previous Page", ng: {click: 'page(page_info.page - 1)'}}
+      &lt;
+  %li{ng: {repeat: 'i in [] | range:page_info.num_pages', class: '{active: i + 1 === page_info.page}'}}
+    %a{ng: {click: 'page(i+1)'}}
+      {{i + 1}}
+  %li{ng: {if: 'page_info.num_pages !== page_info.page'}}
+    %a{tooltip: "Next Page", ng: {click: 'page(page_info.page + 1)'}}
+      &gt;
+  %li{ng: {if: 'page_info.num_pages !== page_info.page'}}
+    %a{tooltip: "Last Page", ng: {click: 'page(page_info.num_pages)'}}
+      &raquo;
