@@ -293,6 +293,10 @@ lex_app.config([
       templateUrl: '/home.html',
       controller: lex_app.HomeController
     });
+    $routeProvider.when('/page/:page/fund/:fund_name', {
+      templateUrl: '/home.html',
+      controller: lex_app.HomeController
+    });
     return $routeProvider.otherwise({
       redirectTo: '/'
     });
@@ -437,6 +441,14 @@ lex_app.factory('Budget', function($http) {
   BudgetService = (function() {
     function BudgetService() {
       this.data = [];
+      this.table_data = [];
+      this.page_info = {
+        num_pages: 1,
+        page: 1,
+        per_page: 15,
+        window_size: 10,
+        windows: []
+      };
       $http.get('/2014-lexington-ky-budget.json').success((function(_this) {
         return function(response) {
           var datum, _i, _len, _results;
@@ -449,6 +461,48 @@ lex_app.factory('Budget', function($http) {
         };
       })(this));
     }
+
+    BudgetService.prototype.filter_data = function(filters) {
+      var fund_name, row, _i, _j, _len, _len1, _ref, _ref1;
+      this.table_data.length = 0;
+      if (fund_name = filters.fund_name) {
+        _ref = this.data;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          row = _ref[_i];
+          if (row.fund && row.fund_name === fund_name) {
+            this.table_data.push(row);
+          }
+        }
+      } else {
+        _ref1 = this.data;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          row = _ref1[_j];
+          if (row.fund) {
+            this.table_data.push(row);
+          }
+        }
+      }
+      return this.page_info.num_pages = Math.ceil(this.table_data.length / this.page_info.per_page);
+    };
+
+    BudgetService.prototype.set_page_windows = function() {
+      var i, page_window, start_window, window_limit, _i, _j, _ref;
+      this.page_info.windows.length = 0;
+      page_window = [];
+      window_limit = Math.min(this.page_info.window_size, this.page_info.num_pages);
+      for (i = _i = 0; 0 <= window_limit ? _i < window_limit : _i > window_limit; i = 0 <= window_limit ? ++_i : --_i) {
+        page_window.push(i);
+      }
+      this.page_info.windows.push(page_window);
+      if (this.page_info.num_pages > this.page_info.window_size) {
+        page_window = [];
+        start_window = this.page_info.num_pages - this.page_info.window_size;
+        for (i = _j = start_window, _ref = this.page_info.num_pages; start_window <= _ref ? _j < _ref : _j > _ref; i = start_window <= _ref ? ++_j : --_j) {
+          page_window.push(i);
+        }
+        return this.page_info.windows.push(page_window);
+      }
+    };
 
     BudgetService.prototype.group_data = function(raw_data, key, value_property) {
       var end_slice, get_group, group, grouped_data, groups_with_other, grp, main_groups, max_slices, new_group, obj, other_group, other_groups, value, value_sorter, _i, _j, _len, _len1;
@@ -541,70 +595,81 @@ HomeController = (function() {
     this.$location = $location;
     this.show_all_pages = __bind(this.show_all_pages, this);
     this.on_page_change = __bind(this.on_page_change, this);
-    $scope.budget_data = Budget.data;
-    $scope.page_info = {
-      num_pages: 1,
-      page: parseInt($routeParams.page || 1, 10),
-      per_page: 15,
-      window_size: 10,
-      windows: []
+    $scope.filters = {
+      fund_name: $routeParams.fund_name
     };
-    $scope.loading = {
-      budget_data: true
-    };
+    $scope.page_info = Budget.page_info;
+    $scope.page_info.page = parseInt($routeParams.page || 1, 10);
     if ($scope.page_info.page < 1) {
       this.on_page_change(1);
     }
+    $scope.loading = {
+      budget_data: true
+    };
+    $scope.budget_data = Budget.data;
+    Budget.filter_data($scope.filters);
+    $scope.table_data = Budget.table_data;
+    $scope.funds = [];
     $scope.$watch('budget_data.length', (function(_this) {
       return function() {
-        var row;
         if (!($scope.budget_data.length > 0)) {
           return;
         }
         $scope.loading.budget_data = false;
-        $scope.table_data = (function() {
-          var _i, _len, _ref, _results;
-          _ref = $scope.budget_data;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            row = _ref[_i];
-            if (row.fund) {
-              _results.push(row);
-            }
-          }
-          return _results;
-        })();
-        $scope.page_info.num_pages = Math.ceil($scope.table_data.length / $scope.page_info.per_page);
-        if ($scope.page_info.page > $scope.page_info.num_pages) {
-          _this.on_page_change($scope.page_info.num_pages);
+        _this.initialize_filters();
+        Budget.filter_data($scope.filters);
+        _this.change_page_if_necessary();
+        return Budget.set_page_windows();
+      };
+    })(this));
+    $scope.$watch('table_data.length', (function(_this) {
+      return function() {
+        if (!($scope.table_data.length > 0)) {
+          return;
         }
-        return _this.set_page_windows();
+        _this.change_page_if_necessary();
+        return Budget.set_page_windows();
+      };
+    })(this));
+    $scope.$watch('filters.fund_name', (function(_this) {
+      return function() {
+        var new_page;
+        if (!($scope.table_data.length > 0)) {
+          return;
+        }
+        new_page = Math.min($scope.page_info.page, $scope.page_info.num_pages);
+        return _this.on_page_change(new_page);
       };
     })(this));
     $scope.show_all_pages = this.show_all_pages;
     $scope.page = this.on_page_change;
   }
 
-  HomeController.prototype.set_page_windows = function() {
-    var i, page_window, start_window, window_limit, _i, _j, _ref;
-    page_window = [];
-    window_limit = Math.min(this.$scope.page_info.window_size, this.$scope.page_info.num_pages);
-    for (i = _i = 0; 0 <= window_limit ? _i < window_limit : _i > window_limit; i = 0 <= window_limit ? ++_i : --_i) {
-      page_window.push(i);
-    }
-    this.$scope.page_info.windows.push(page_window);
-    if (this.$scope.page_info.num_pages > this.$scope.page_info.window_size) {
-      page_window = [];
-      start_window = this.$scope.page_info.num_pages - this.$scope.page_info.window_size;
-      for (i = _j = start_window, _ref = this.$scope.page_info.num_pages; start_window <= _ref ? _j < _ref : _j > _ref; i = start_window <= _ref ? ++_j : --_j) {
-        page_window.push(i);
+  HomeController.prototype.initialize_filters = function() {
+    var row, _i, _len, _ref;
+    _ref = this.$scope.budget_data;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      row = _ref[_i];
+      if (this.$scope.funds.indexOf(row.fund_name) === -1) {
+        this.$scope.funds.push(row.fund_name);
       }
-      return this.$scope.page_info.windows.push(page_window);
+    }
+    return this.$scope.funds.sort();
+  };
+
+  HomeController.prototype.change_page_if_necessary = function() {
+    if (this.$scope.page_info.page > this.$scope.page_info.num_pages) {
+      return this.on_page_change(this.$scope.page_info.num_pages);
     }
   };
 
   HomeController.prototype.on_page_change = function(new_page) {
-    return this.$location.path("/page/" + new_page);
+    var fund_name;
+    if (fund_name = this.$scope.filters.fund_name) {
+      return this.$location.path("/page/" + new_page + "/fund/" + fund_name);
+    } else {
+      return this.$location.path("/page/" + new_page);
+    }
   };
 
   HomeController.prototype.show_all_pages = function() {

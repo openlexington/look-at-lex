@@ -19,8 +19,13 @@
     </div>
   </section>
   <hr>
-  <table class='table table-striped' ng-if='table_data'>
+  <table class='table table-striped' ng-if='table_data.length &gt; 0'>
     <thead>
+      <tr>
+        <th>
+          <select class='form-control' ng-model='filters.fund_name' ng-options='fund as fund for fund in funds'></select>
+        </th>
+      </tr>
       <tr>
         <th>Fund</th>
         <th>Division</th>
