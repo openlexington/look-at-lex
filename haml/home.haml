@@ -18,6 +18,11 @@
       %tr
         %th
           %select.form-control{ng: {model: 'filters.fund', options: 'fund.value as fund.name for fund in funds'}}
+        %th
+          %select.form-control{ng: {model: 'filters.dept_id', options: 'division.value as division.name for division in divisions'}}
+        %th
+        %th
+        %th
       %tr
         %th Fund
         %th Division

@@ -15,8 +15,16 @@ lex_app.factory 'Budget', ($http) ->
 
     filter_data: (filters) ->
       @table_data.length = 0
-      if fund=filters.fund
+      fund = filters.fund
+      dept_id = filters.dept_id
+      if fund && dept_id
+        for row in @data when row.fund && row.fund is fund && row.dept_id is dept_id
+          @table_data.push row
+      else if fund
         for row in @data when row.fund && row.fund is fund
+          @table_data.push row
+      else if dept_id
+        for row in @data when row.fund && row.dept_id is dept_id
           @table_data.push row
       else
         for row in @data when row.fund

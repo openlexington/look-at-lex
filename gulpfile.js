@@ -69,6 +69,7 @@ gulp.task('minify-js', ['coffee'], function() {
                    vendor_js_path + '/bootstrap.min.js',
                    vendor_js_path + '/ui-bootstrap-*.min.js',
                    vendor_js_path + '/numeral.min.js',
+                   vendor_js_path + '/underscore-min.js',
                    tmp_js_path + '/app.js',
                    tmp_js_path + '/routes.js',
                    tmp_js_path + '/models/*.js',
