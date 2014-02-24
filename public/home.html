@@ -23,7 +23,7 @@
     <thead>
       <tr>
         <th>
-          <select class='form-control' ng-model='filters.fund_name' ng-options='fund as fund for fund in funds'></select>
+          <select class='form-control' ng-model='filters.fund' ng-options='fund.value as fund.name for fund in funds'></select>
         </th>
       </tr>
       <tr>

@@ -15,8 +15,8 @@ lex_app.factory 'Budget', ($http) ->
 
     filter_data: (filters) ->
       @table_data.length = 0
-      if fund_name=filters.fund_name
-        for row in @data when row.fund && row.fund_name is fund_name
+      if fund=filters.fund
+        for row in @data when row.fund && row.fund is fund
           @table_data.push row
       else
         for row in @data when row.fund
@@ -32,8 +32,7 @@ lex_app.factory 'Budget', ($http) ->
       @page_info.windows.push page_window
       if @page_info.num_pages > @page_info.window_size
         page_window = []
-        start_window = @page_info.num_pages -
-                       @page_info.window_size
+        start_window = @page_info.num_pages - @page_info.window_size
         for i in [start_window...@page_info.num_pages]
           page_window.push i
         @page_info.windows.push page_window

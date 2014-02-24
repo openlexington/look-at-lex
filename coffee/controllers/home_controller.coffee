@@ -1,7 +1,7 @@
 class HomeController
   constructor: (@$scope, @$location, $routeParams, $http, Budget) ->
     $scope.filters =
-      fund_name: $routeParams.fund_name
+      fund: parseInt($routeParams.fund, 10)
     $scope.page_info = Budget.page_info
     $scope.page_info.page = parseInt($routeParams.page || 1, 10)
     @on_page_change(1) if $scope.page_info.page < 1
@@ -22,7 +22,7 @@ class HomeController
       return unless $scope.table_data.length > 0
       @change_page_if_necessary()
       Budget.set_page_windows()
-    $scope.$watch 'filters.fund_name', =>
+    $scope.$watch 'filters.fund', =>
       return unless $scope.table_data.length > 0
       new_page = Math.min($scope.page_info.page, $scope.page_info.num_pages)
       @on_page_change(new_page)
@@ -30,17 +30,20 @@ class HomeController
     $scope.page = @on_page_change
 
   initialize_filters: ->
-    for row in @$scope.budget_data when @$scope.funds.indexOf(row.fund_name) == -1
-      @$scope.funds.push row.fund_name
-    @$scope.funds.sort()
+    for row in @$scope.budget_data when row.fund && (obj.value for obj in @$scope.funds).indexOf(row.fund) == -1
+      @$scope.funds.push {name: row.fund_name, value: row.fund}
+    @$scope.funds.sort (a, b) ->
+      return -1 if a.name < b.name
+      return 1 if a.name > b.name
+      0
 
   change_page_if_necessary: ->
     if @$scope.page_info.page > @$scope.page_info.num_pages
       @on_page_change(@$scope.page_info.num_pages)
 
   on_page_change: (new_page) =>
-    if fund_name=@$scope.filters.fund_name
-      @$location.path "/page/#{new_page}/fund/#{fund_name}"
+    if fund=@$scope.filters.fund
+      @$location.path "/page/#{new_page}/fund/#{fund}"
     else
       @$location.path "/page/#{new_page}"
 

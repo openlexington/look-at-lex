@@ -293,7 +293,7 @@ lex_app.config([
       templateUrl: '/home.html',
       controller: lex_app.HomeController
     });
-    $routeProvider.when('/page/:page/fund/:fund_name', {
+    $routeProvider.when('/page/:page/fund/:fund', {
       templateUrl: '/home.html',
       controller: lex_app.HomeController
     });
@@ -463,13 +463,13 @@ lex_app.factory('Budget', function($http) {
     }
 
     BudgetService.prototype.filter_data = function(filters) {
-      var fund_name, row, _i, _j, _len, _len1, _ref, _ref1;
+      var fund, row, _i, _j, _len, _len1, _ref, _ref1;
       this.table_data.length = 0;
-      if (fund_name = filters.fund_name) {
+      if (fund = filters.fund) {
         _ref = this.data;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           row = _ref[_i];
-          if (row.fund && row.fund_name === fund_name) {
+          if (row.fund && row.fund === fund) {
             this.table_data.push(row);
           }
         }
@@ -596,7 +596,7 @@ HomeController = (function() {
     this.show_all_pages = __bind(this.show_all_pages, this);
     this.on_page_change = __bind(this.on_page_change, this);
     $scope.filters = {
-      fund_name: $routeParams.fund_name
+      fund: parseInt($routeParams.fund, 10)
     };
     $scope.page_info = Budget.page_info;
     $scope.page_info.page = parseInt($routeParams.page || 1, 10);
@@ -631,7 +631,7 @@ HomeController = (function() {
         return Budget.set_page_windows();
       };
     })(this));
-    $scope.$watch('filters.fund_name', (function(_this) {
+    $scope.$watch('filters.fund', (function(_this) {
       return function() {
         var new_page;
         if (!($scope.table_data.length > 0)) {
@@ -646,15 +646,35 @@ HomeController = (function() {
   }
 
   HomeController.prototype.initialize_filters = function() {
-    var row, _i, _len, _ref;
+    var obj, row, _i, _len, _ref;
     _ref = this.$scope.budget_data;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       row = _ref[_i];
-      if (this.$scope.funds.indexOf(row.fund_name) === -1) {
-        this.$scope.funds.push(row.fund_name);
+      if (row.fund && ((function() {
+        var _j, _len1, _ref1, _results;
+        _ref1 = this.$scope.funds;
+        _results = [];
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          obj = _ref1[_j];
+          _results.push(obj.value);
+        }
+        return _results;
+      }).call(this)).indexOf(row.fund) === -1) {
+        this.$scope.funds.push({
+          name: row.fund_name,
+          value: row.fund
+        });
       }
     }
-    return this.$scope.funds.sort();
+    return this.$scope.funds.sort(function(a, b) {
+      if (a.name < b.name) {
+        return -1;
+      }
+      if (a.name > b.name) {
+        return 1;
+      }
+      return 0;
+    });
   };
 
   HomeController.prototype.change_page_if_necessary = function() {
@@ -664,9 +684,9 @@ HomeController = (function() {
   };
 
   HomeController.prototype.on_page_change = function(new_page) {
-    var fund_name;
-    if (fund_name = this.$scope.filters.fund_name) {
-      return this.$location.path("/page/" + new_page + "/fund/" + fund_name);
+    var fund;
+    if (fund = this.$scope.filters.fund) {
+      return this.$location.path("/page/" + new_page + "/fund/" + fund);
     } else {
       return this.$location.path("/page/" + new_page);
     }

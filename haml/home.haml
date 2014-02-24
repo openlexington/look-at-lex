@@ -17,7 +17,7 @@
     %thead
       %tr
         %th
-          %select.form-control{ng: {model: 'filters.fund_name', options: 'fund as fund for fund in funds'}}
+          %select.form-control{ng: {model: 'filters.fund', options: 'fund.value as fund.name for fund in funds'}}
       %tr
         %th Fund
         %th Division
