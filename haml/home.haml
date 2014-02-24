@@ -13,8 +13,17 @@
           %i.fa.fa-spinner.fa-spin{ng: {show: 'loading.budget_data'}}
         %generalServicesChart{data: 'budget_data'}
   %hr
-  %table.table.table-striped{ng: {if: 'table_data'}}
+  %table.table.table-striped{ng: {if: 'table_data.length > 0'}}
     %thead
+      %tr
+        %th
+          %select.form-control{ng: {model: 'filters.fund', options: 'fund.value as fund.name for fund in funds'}}
+        %th
+          %select.form-control{ng: {model: 'filters.dept_id', options: 'division.value as division.name for division in divisions'}}
+        %th
+          %select.form-control{ng: {model: 'filters.dept_id2', options: 'program.value as program.name for program in programs'}}
+        %th
+        %th
       %tr
         %th Fund
         %th Division

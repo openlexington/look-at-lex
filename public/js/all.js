@@ -293,6 +293,34 @@ lex_app.config([
       templateUrl: '/home.html',
       controller: lex_app.HomeController
     });
+    $routeProvider.when('/page/:page/fund/:fund', {
+      templateUrl: '/home.html',
+      controller: lex_app.HomeController
+    });
+    $routeProvider.when('/page/:page/division/:dept_id', {
+      templateUrl: '/home.html',
+      controller: lex_app.HomeController
+    });
+    $routeProvider.when('/page/:page/program/:dept_id2', {
+      templateUrl: '/home.html',
+      controller: lex_app.HomeController
+    });
+    $routeProvider.when('/page/:page/division/:dept_id/program/:dept_id2', {
+      templateUrl: '/home.html',
+      controller: lex_app.HomeController
+    });
+    $routeProvider.when('/page/:page/fund/:fund/division/:dept_id', {
+      templateUrl: '/home.html',
+      controller: lex_app.HomeController
+    });
+    $routeProvider.when('/page/:page/fund/:fund/program/:dept_id2', {
+      templateUrl: '/home.html',
+      controller: lex_app.HomeController
+    });
+    $routeProvider.when('/page/:page/fund/:fund/division/:dept_id/program/' + ':dept_id2', {
+      templateUrl: '/home.html',
+      controller: lex_app.HomeController
+    });
     return $routeProvider.otherwise({
       redirectTo: '/'
     });
@@ -437,6 +465,14 @@ lex_app.factory('Budget', function($http) {
   BudgetService = (function() {
     function BudgetService() {
       this.data = [];
+      this.table_data = [];
+      this.page_info = {
+        num_pages: 1,
+        page: 1,
+        per_page: 15,
+        window_size: 10,
+        windows: []
+      };
       $http.get('/2014-lexington-ky-budget.json').success((function(_this) {
         return function(response) {
           var datum, _i, _len, _results;
@@ -449,6 +485,74 @@ lex_app.factory('Budget', function($http) {
         };
       })(this));
     }
+
+    BudgetService.prototype.filter_data = function(filters) {
+      var dept_id, dept_id2, fund, include_row, row, _i, _len, _ref;
+      this.table_data.length = 0;
+      fund = filters.fund;
+      dept_id = filters.dept_id;
+      dept_id2 = filters.dept_id2;
+      if (fund && dept_id && dept_id2) {
+        include_row = function(row) {
+          return row.fund === fund && row.dept_id === dept_id && row.dept_id2 === dept_id2;
+        };
+      } else if (fund && dept_id) {
+        include_row = function(row) {
+          return row.fund === fund && row.dept_id === dept_id;
+        };
+      } else if (fund && dept_id2) {
+        include_row = function(row) {
+          return row.fund === fund && row.dept_id2 === dept_id2;
+        };
+      } else if (dept_id && dept_id2) {
+        include_row = function(row) {
+          return row.dept_id === dept_id && row.dept_id2 === dept_id2;
+        };
+      } else if (fund) {
+        include_row = function(row) {
+          return row.fund === fund;
+        };
+      } else if (dept_id) {
+        include_row = function(row) {
+          return row.dept_id === dept_id;
+        };
+      } else if (dept_id2) {
+        include_row = function(row) {
+          return row.dept_id2 === dept_id2;
+        };
+      } else {
+        include_row = function(row) {
+          return true;
+        };
+      }
+      _ref = this.data;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        row = _ref[_i];
+        if (row.fund && include_row(row)) {
+          this.table_data.push(row);
+        }
+      }
+      return this.page_info.num_pages = Math.ceil(this.table_data.length / this.page_info.per_page);
+    };
+
+    BudgetService.prototype.set_page_windows = function() {
+      var i, page_window, start_window, window_limit, _i, _j, _ref;
+      this.page_info.windows.length = 0;
+      page_window = [];
+      window_limit = Math.min(this.page_info.window_size, this.page_info.num_pages);
+      for (i = _i = 0; 0 <= window_limit ? _i < window_limit : _i > window_limit; i = 0 <= window_limit ? ++_i : --_i) {
+        page_window.push(i);
+      }
+      this.page_info.windows.push(page_window);
+      if (this.page_info.num_pages > this.page_info.window_size) {
+        page_window = [];
+        start_window = this.page_info.num_pages - this.page_info.window_size;
+        for (i = _j = start_window, _ref = this.page_info.num_pages; start_window <= _ref ? _j < _ref : _j > _ref; i = start_window <= _ref ? ++_j : --_j) {
+          page_window.push(i);
+        }
+        return this.page_info.windows.push(page_window);
+      }
+    };
 
     BudgetService.prototype.group_data = function(raw_data, key, value_property) {
       var end_slice, get_group, group, grouped_data, groups_with_other, grp, main_groups, max_slices, new_group, obj, other_group, other_groups, value, value_sorter, _i, _j, _len, _len1;
@@ -537,74 +641,166 @@ var HomeController,
 
 HomeController = (function() {
   function HomeController($scope, $location, $routeParams, $http, Budget) {
+    var dept_id, dept_id2, fund;
     this.$scope = $scope;
     this.$location = $location;
     this.show_all_pages = __bind(this.show_all_pages, this);
     this.on_page_change = __bind(this.on_page_change, this);
-    $scope.budget_data = Budget.data;
-    $scope.page_info = {
-      num_pages: 1,
-      page: parseInt($routeParams.page || 1, 10),
-      per_page: 15,
-      window_size: 10,
-      windows: []
+    fund = $routeParams.fund;
+    dept_id = $routeParams.dept_id;
+    dept_id2 = $routeParams.dept_id2;
+    $scope.filters = {
+      fund: fund ? parseInt(fund, 10) : void 0,
+      dept_id: dept_id ? parseInt(dept_id, 10) : void 0,
+      dept_id2: dept_id2 ? parseInt(dept_id2, 10) : void 0
     };
-    $scope.loading = {
-      budget_data: true
-    };
+    console.log($scope.filters);
+    $scope.page_info = Budget.page_info;
+    $scope.page_info.page = parseInt($routeParams.page || 1, 10);
     if ($scope.page_info.page < 1) {
       this.on_page_change(1);
     }
+    $scope.loading = {
+      budget_data: true
+    };
+    $scope.budget_data = Budget.data;
+    Budget.filter_data($scope.filters);
+    $scope.table_data = Budget.table_data;
+    $scope.funds = [
+      {
+        name: '',
+        value: void 0
+      }
+    ];
+    $scope.divisions = [
+      {
+        name: '',
+        value: void 0
+      }
+    ];
+    $scope.programs = [
+      {
+        name: '',
+        value: void 0
+      }
+    ];
     $scope.$watch('budget_data.length', (function(_this) {
       return function() {
-        var row;
         if (!($scope.budget_data.length > 0)) {
           return;
         }
         $scope.loading.budget_data = false;
-        $scope.table_data = (function() {
-          var _i, _len, _ref, _results;
-          _ref = $scope.budget_data;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            row = _ref[_i];
-            if (row.fund) {
-              _results.push(row);
-            }
-          }
-          return _results;
-        })();
-        $scope.page_info.num_pages = Math.ceil($scope.table_data.length / $scope.page_info.per_page);
-        if ($scope.page_info.page > $scope.page_info.num_pages) {
-          _this.on_page_change($scope.page_info.num_pages);
+        _this.initialize_filters();
+        Budget.filter_data($scope.filters);
+        _this.change_page_if_necessary();
+        return Budget.set_page_windows();
+      };
+    })(this));
+    $scope.$watch('table_data.length', (function(_this) {
+      return function() {
+        if (!($scope.table_data.length > 0)) {
+          return;
         }
-        return _this.set_page_windows();
+        _this.change_page_if_necessary();
+        return Budget.set_page_windows();
+      };
+    })(this));
+    $scope.$watchCollection('[filters.fund, filters.dept_id, filters.dept_id2]', (function(_this) {
+      return function() {
+        var new_page;
+        if (!($scope.table_data.length > 0)) {
+          return;
+        }
+        new_page = Math.min($scope.page_info.page, $scope.page_info.num_pages);
+        return _this.on_page_change(new_page);
       };
     })(this));
     $scope.show_all_pages = this.show_all_pages;
     $scope.page = this.on_page_change;
   }
 
-  HomeController.prototype.set_page_windows = function() {
-    var i, page_window, start_window, window_limit, _i, _j, _ref;
-    page_window = [];
-    window_limit = Math.min(this.$scope.page_info.window_size, this.$scope.page_info.num_pages);
-    for (i = _i = 0; 0 <= window_limit ? _i < window_limit : _i > window_limit; i = 0 <= window_limit ? ++_i : --_i) {
-      page_window.push(i);
-    }
-    this.$scope.page_info.windows.push(page_window);
-    if (this.$scope.page_info.num_pages > this.$scope.page_info.window_size) {
-      page_window = [];
-      start_window = this.$scope.page_info.num_pages - this.$scope.page_info.window_size;
-      for (i = _j = start_window, _ref = this.$scope.page_info.num_pages; start_window <= _ref ? _j < _ref : _j > _ref; i = start_window <= _ref ? ++_j : --_j) {
-        page_window.push(i);
+  HomeController.prototype.initialize_filters = function() {
+    var dept_id, dept_id2s, dept_ids, fund, funds, name_sorter, row, _i, _len, _ref;
+    name_sorter = function(a, b) {
+      if (a.name < b.name) {
+        return -1;
       }
-      return this.$scope.page_info.windows.push(page_window);
+      if (a.name > b.name) {
+        return 1;
+      }
+      return 0;
+    };
+    funds = [];
+    dept_ids = [];
+    dept_id2s = [];
+    fund = this.$scope.filters.fund;
+    dept_id = this.$scope.filters.dept_id;
+    _ref = this.$scope.budget_data;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      row = _ref[_i];
+      if (row.fund && funds.indexOf(row.fund) === -1) {
+        this.$scope.funds.push({
+          name: row.fund_name,
+          value: row.fund
+        });
+        funds.push(row.fund);
+      }
+      if (row.dept_id && dept_ids.indexOf(row.dept_id) === -1 && (!fund || row.fund === fund)) {
+        this.$scope.divisions.push({
+          name: row.division_name,
+          value: row.dept_id
+        });
+        dept_ids.push(row.dept_id);
+      }
+      if (row.dept_id2 && dept_id2s.indexOf(row.dept_id2) === -1 && (!fund || row.fund === fund) && (!dept_id || row.dept_id === dept_id)) {
+        this.$scope.programs.push({
+          name: row.program_name,
+          value: row.dept_id2
+        });
+        dept_id2s.push(row.dept_id2);
+      }
+    }
+    this.$scope.funds.sort(name_sorter);
+    this.$scope.divisions.sort(name_sorter);
+    return this.$scope.programs.sort(name_sorter);
+  };
+
+  HomeController.prototype.change_page_if_necessary = function() {
+    if (this.$scope.page_info.page > this.$scope.page_info.num_pages) {
+      return this.on_page_change(this.$scope.page_info.num_pages);
     }
   };
 
   HomeController.prototype.on_page_change = function(new_page) {
-    return this.$location.path("/page/" + new_page);
+    var dept_id, dept_id2, fund;
+    fund = this.$scope.filters.fund;
+    dept_id = this.$scope.filters.dept_id;
+    dept_id2 = this.$scope.filters.dept_id2;
+    if (fund) {
+      if (dept_id) {
+        if (dept_id2) {
+          return this.$location.path(("/page/" + new_page + "/fund/" + fund + "/division/" + dept_id) + ("/program/" + dept_id2));
+        } else {
+          return this.$location.path("/page/" + new_page + "/fund/" + fund + "/division/" + dept_id);
+        }
+      } else {
+        if (dept_id2) {
+          return this.$location.path("/page/" + new_page + "/fund/" + fund + "/program/" + dept_id2);
+        } else {
+          return this.$location.path("/page/" + new_page + "/fund/" + fund);
+        }
+      }
+    } else if (dept_id) {
+      if (dept_id2) {
+        return this.$location.path(("/page/" + new_page + "/division/" + dept_id + "/program/") + ("" + dept_id2));
+      } else {
+        return this.$location.path("/page/" + new_page + "/division/" + dept_id);
+      }
+    } else if (dept_id2) {
+      return this.$location.path("/page/" + new_page + "/program/" + dept_id2);
+    } else {
+      return this.$location.path("/page/" + new_page);
+    }
   };
 
   HomeController.prototype.show_all_pages = function() {

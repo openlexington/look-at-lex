@@ -2,9 +2,57 @@ lex_app.factory 'Budget', ($http) ->
   class BudgetService
     constructor: ->
       @data = []
+      @table_data = []
+      @page_info =
+        num_pages: 1
+        page: 1
+        per_page: 15
+        window_size: 10
+        windows: []
       $http.get('/2014-lexington-ky-budget.json').success (response) =>
         for datum in response
           @data.push datum
+
+    filter_data: (filters) ->
+      @table_data.length = 0
+      fund = filters.fund
+      dept_id = filters.dept_id
+      dept_id2 = filters.dept_id2
+      if fund && dept_id && dept_id2
+        include_row = (row) -> row.fund is fund && row.dept_id is dept_id &&
+                               row.dept_id2 is dept_id2
+      else if fund && dept_id
+        include_row = (row) -> row.fund is fund && row.dept_id is dept_id
+      else if fund && dept_id2
+        include_row = (row) -> row.fund is fund && row.dept_id2 is dept_id2
+      else if dept_id && dept_id2
+        include_row = (row) -> row.dept_id is dept_id &&
+                               row.dept_id2 is dept_id2
+      else if fund
+        include_row = (row) -> row.fund is fund
+      else if dept_id
+        include_row = (row) -> row.dept_id is dept_id
+      else if dept_id2
+        include_row = (row) -> row.dept_id2 is dept_id2
+      else
+        include_row = (row) -> true
+      for row in @data when row.fund && include_row(row)
+        @table_data.push row
+      @page_info.num_pages = Math.ceil(@table_data.length / @page_info.per_page)
+
+    set_page_windows: ->
+      @page_info.windows.length = 0
+      page_window = []
+      window_limit = Math.min(@page_info.window_size, @page_info.num_pages)
+      for i in [0...window_limit]
+        page_window.push i
+      @page_info.windows.push page_window
+      if @page_info.num_pages > @page_info.window_size
+        page_window = []
+        start_window = @page_info.num_pages - @page_info.window_size
+        for i in [start_window...@page_info.num_pages]
+          page_window.push i
+        @page_info.windows.push page_window
 
     group_data: (raw_data, key, value_property) ->
       grouped_data = []

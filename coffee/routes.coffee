@@ -8,6 +8,35 @@ lex_app.config(['$routeProvider', '$locationProvider', '$httpProvider', ($routeP
     templateUrl: '/home.html'
     controller: lex_app.HomeController
 
+  $routeProvider.when '/page/:page/fund/:fund',
+    templateUrl: '/home.html'
+    controller: lex_app.HomeController
+
+  $routeProvider.when '/page/:page/division/:dept_id',
+    templateUrl: '/home.html'
+    controller: lex_app.HomeController
+
+  $routeProvider.when '/page/:page/program/:dept_id2',
+    templateUrl: '/home.html'
+    controller: lex_app.HomeController
+
+  $routeProvider.when '/page/:page/division/:dept_id/program/:dept_id2',
+    templateUrl: '/home.html'
+    controller: lex_app.HomeController
+
+  $routeProvider.when '/page/:page/fund/:fund/division/:dept_id',
+    templateUrl: '/home.html'
+    controller: lex_app.HomeController
+
+  $routeProvider.when '/page/:page/fund/:fund/program/:dept_id2',
+    templateUrl: '/home.html'
+    controller: lex_app.HomeController
+
+  $routeProvider.when '/page/:page/fund/:fund/division/:dept_id/program/' +
+                      ':dept_id2',
+    templateUrl: '/home.html'
+    controller: lex_app.HomeController
+
   $routeProvider.otherwise
     redirectTo: '/'
 ])
