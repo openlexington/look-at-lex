@@ -74,7 +74,8 @@ gulp.task('minify-js', ['coffee'], function() {
                    tmp_js_path + '/models/*.js',
                    tmp_js_path + '/services/*.js',
                    tmp_js_path + '/controllers/*.js',
-                   tmp_js_path + '/filters.js']).
+                   tmp_js_path + '/filters.js',
+                   tmp_js_path + '/directives.js']).
               pipe(concat('all.js').on('error', on_error)).
               pipe(gulp.dest('./public/js'));
 });

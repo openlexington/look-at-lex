@@ -5,7 +5,9 @@ class PieChart
     @value_property = value_property
     @legend_left_padding = 10
     @line_height = 20
-    @container_width = $(@selector).parent().innerWidth()
+    @container = $(@selector)
+    @container.empty()
+    @container_width = @container.parent().innerWidth()
     @width = Math.floor(@container_width / 2.5) - @legend_left_padding
     @height = @width
     @radius = @width / 2

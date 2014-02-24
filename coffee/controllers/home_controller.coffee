@@ -7,9 +7,12 @@ class HomeController
       per_page: 15
       window_size: 10
       windows: []
+    $scope.loading =
+      budget_data: true
     @on_page_change(1) if $scope.page_info.page < 1
     $scope.$watch 'budget_data.length', =>
       return unless $scope.budget_data.length > 0
+      $scope.loading.budget_data = false
       $scope.table_data = (row for row in $scope.budget_data when row.fund)
       $scope.page_info.num_pages = Math.ceil($scope.table_data.length /
                                              $scope.page_info.per_page)
