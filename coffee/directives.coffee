@@ -10,7 +10,7 @@ lex_app.directive 'allfundschart', (Budget) ->
       grouped_data = Budget.group_data(scope.data, 'fund_name',
                                        'fy_2014_adopted')
       color = d3.scale.category20()
-      chart = new PieChart('#all-funds-pie', color, 'fy_2014_adopted')
+      chart = new PieChart(element[0], color, 'fy_2014_adopted')
       chart.create_root grouped_data
       chart.create_pie_slices (value) -> numeral(value).format "$ 0,0[.]00"
       chart.label_pie_slices (value) -> numeral(value).format "($ 0.0 a)"
@@ -29,7 +29,7 @@ lex_app.directive 'generalserviceschart', (Budget) ->
       grouped_data = Budget.group_data(gen_serv_data, 'division_name',
                                        'fy_2014_adopted')
       color = d3.scale.category20()
-      chart = new PieChart('#general-services-pie', color, 'fy_2014_adopted')
+      chart = new PieChart(element[0], color, 'fy_2014_adopted')
       chart.create_root grouped_data
       chart.create_pie_slices (value) -> numeral(value).format "$ 0,0[.]00"
       chart.label_pie_slices (value) -> numeral(value).format "($ 0.0 a)"

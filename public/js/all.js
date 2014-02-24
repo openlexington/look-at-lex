@@ -646,7 +646,7 @@ lex_app.directive('allfundschart', function(Budget) {
         }
         grouped_data = Budget.group_data(scope.data, 'fund_name', 'fy_2014_adopted');
         color = d3.scale.category20();
-        chart = new PieChart('#all-funds-pie', color, 'fy_2014_adopted');
+        chart = new PieChart(element[0], color, 'fy_2014_adopted');
         chart.create_root(grouped_data);
         chart.create_pie_slices(function(value) {
           return numeral(value).format("$ 0,0[.]00");
@@ -677,7 +677,7 @@ lex_app.directive('generalserviceschart', function(Budget) {
         gen_serv_data = Budget.extract_fund_data(1101, scope.data);
         grouped_data = Budget.group_data(gen_serv_data, 'division_name', 'fy_2014_adopted');
         color = d3.scale.category20();
-        chart = new PieChart('#general-services-pie', color, 'fy_2014_adopted');
+        chart = new PieChart(element[0], color, 'fy_2014_adopted');
         chart.create_root(grouped_data);
         chart.create_pie_slices(function(value) {
           return numeral(value).format("$ 0,0[.]00");
