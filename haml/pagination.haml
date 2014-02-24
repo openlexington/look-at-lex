@@ -9,7 +9,7 @@
     %a{ng: {click: 'page(i+1)'}}
       {{i + 1}}
   %li{ng: {show: 'page_info.windows.length > 1'}}
-    %a
+    %a{ng: {click: 'show_all_pages()'}}
       \...
   %li{ng: {repeat: 'i in page_info.windows[1]', class: '{active: i + 1 === page_info.page}', show: 'page_info.windows.length > 1'}}
     %a{ng: {click: 'page(i+1)'}}

@@ -2,24 +2,24 @@
   <section>
     <h2>2014 Lexington, KY Budget</h2>
     <div class='row'>
-      <div class='col-md-6' ng-controller='AllFundsChartController'>
+      <div class='col-md-6'>
         <h3>
           All Funds
-          <i class='fa fa-spinner fa-spin' ng-show='loading.all_funds_chart'></i>
+          <i class='fa fa-spinner fa-spin' ng-show='loading.budget_data'></i>
         </h3>
-        <div class='chart-wrapper' id='all-funds-pie'></div>
+        <allFundsChart data='budget_data'></allFundsChart>
       </div>
-      <div class='col-md-6' ng-controller='GeneralServicesChartController'>
+      <div class='col-md-6'>
         <h3>
           General Services
-          <i class='fa fa-spinner fa-spin' ng-show='loading.general_services_chart'></i>
+          <i class='fa fa-spinner fa-spin' ng-show='loading.budget_data'></i>
         </h3>
-        <div class='chart-wrapper' id='general-services-pie'></div>
+        <generalServicesChart data='budget_data'></generalServicesChart>
       </div>
     </div>
   </section>
   <hr>
-  <table class='table table-striped' ng-show='table_data'>
+  <table class='table table-striped' ng-if='table_data'>
     <thead>
       <tr>
         <th>Fund</th>

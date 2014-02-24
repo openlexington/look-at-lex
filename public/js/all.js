@@ -289,6 +289,10 @@ lex_app.config([
       templateUrl: '/home.html',
       controller: lex_app.HomeController
     });
+    $routeProvider.when('/page/:page', {
+      templateUrl: '/home.html',
+      controller: lex_app.HomeController
+    });
     return $routeProvider.otherwise({
       redirectTo: '/'
     });
@@ -304,7 +308,9 @@ PieChart = (function() {
     this.value_property = value_property;
     this.legend_left_padding = 10;
     this.line_height = 20;
-    this.container_width = $(this.selector).parent().innerWidth();
+    this.container = $(this.selector);
+    this.container.empty();
+    this.container_width = this.container.parent().innerWidth();
     this.width = Math.floor(this.container_width / 2.5) - this.legend_left_padding;
     this.height = this.width;
     this.radius = this.width / 2;
@@ -526,110 +532,36 @@ lex_app.factory('Budget', function($http) {
   return new BudgetService();
 });
 
-var AllFundsChartController;
-
-AllFundsChartController = (function() {
-  function AllFundsChartController($scope, Budget) {
-    this.$scope = $scope;
-    this.Budget = Budget;
-    $scope.loading = {
-      all_funds_chart: true
-    };
-    $scope.$watch('budget_data.length', (function(_this) {
-      return function() {
-        if (!($scope.budget_data.length > 0)) {
-          return;
-        }
-        return _this.on_budget_loaded($scope.budget_data);
-      };
-    })(this));
-  }
-
-  AllFundsChartController.prototype.on_budget_loaded = function(budget_data) {
-    var chart, color, grouped_data;
-    grouped_data = this.Budget.group_data(budget_data, 'fund_name', 'fy_2014_adopted');
-    color = d3.scale.category20();
-    chart = new PieChart('#all-funds-pie', color, 'fy_2014_adopted');
-    chart.create_root(grouped_data);
-    chart.create_pie_slices(function(value) {
-      return numeral(value).format("$ 0,0[.]00");
-    });
-    chart.label_pie_slices(function(value) {
-      return numeral(value).format("($ 0.0 a)");
-    });
-    chart.add_legend('fund_name');
-    return this.$scope.loading.all_funds_chart = false;
-  };
-
-  return AllFundsChartController;
-
-})();
-
-lex_app.controller('AllFundsChartController', AllFundsChartController);
-
-var GeneralServicesChartController;
-
-GeneralServicesChartController = (function() {
-  function GeneralServicesChartController($scope, Budget) {
-    this.$scope = $scope;
-    this.Budget = Budget;
-    $scope.loading = {
-      general_services_chart: true
-    };
-    $scope.$watch('budget_data.length', (function(_this) {
-      return function() {
-        if (!($scope.budget_data.length > 0)) {
-          return;
-        }
-        return _this.on_budget_loaded($scope.budget_data);
-      };
-    })(this));
-  }
-
-  GeneralServicesChartController.prototype.on_budget_loaded = function(budget_data) {
-    var chart, color, gen_serv_data, grouped_data;
-    gen_serv_data = this.Budget.extract_fund_data(1101, budget_data);
-    grouped_data = this.Budget.group_data(gen_serv_data, 'division_name', 'fy_2014_adopted');
-    color = d3.scale.category20();
-    chart = new PieChart('#general-services-pie', color, 'fy_2014_adopted');
-    chart.create_root(grouped_data);
-    chart.create_pie_slices(function(value) {
-      return numeral(value).format("$ 0,0[.]00");
-    });
-    chart.label_pie_slices(function(value) {
-      return numeral(value).format("($ 0.0 a)");
-    });
-    chart.add_legend('division_name');
-    return this.$scope.loading.general_services_chart = false;
-  };
-
-  return GeneralServicesChartController;
-
-})();
-
-lex_app.controller('GeneralServicesChartController', GeneralServicesChartController);
-
 var HomeController,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 HomeController = (function() {
-  function HomeController($scope, $http, Budget) {
+  function HomeController($scope, $location, $routeParams, $http, Budget) {
     this.$scope = $scope;
+    this.$location = $location;
+    this.show_all_pages = __bind(this.show_all_pages, this);
     this.on_page_change = __bind(this.on_page_change, this);
     $scope.budget_data = Budget.data;
     $scope.page_info = {
       num_pages: 1,
-      page: 1,
+      page: parseInt($routeParams.page || 1, 10),
       per_page: 15,
       window_size: 10,
       windows: []
     };
+    $scope.loading = {
+      budget_data: true
+    };
+    if ($scope.page_info.page < 1) {
+      this.on_page_change(1);
+    }
     $scope.$watch('budget_data.length', (function(_this) {
       return function() {
         var row;
         if (!($scope.budget_data.length > 0)) {
           return;
         }
+        $scope.loading.budget_data = false;
         $scope.table_data = (function() {
           var _i, _len, _ref, _results;
           _ref = $scope.budget_data;
@@ -643,23 +575,28 @@ HomeController = (function() {
           return _results;
         })();
         $scope.page_info.num_pages = Math.ceil($scope.table_data.length / $scope.page_info.per_page);
+        if ($scope.page_info.page > $scope.page_info.num_pages) {
+          _this.on_page_change($scope.page_info.num_pages);
+        }
         return _this.set_page_windows();
       };
     })(this));
+    $scope.show_all_pages = this.show_all_pages;
     $scope.page = this.on_page_change;
   }
 
   HomeController.prototype.set_page_windows = function() {
-    var i, page_window, start_window, _i, _j, _ref, _ref1;
+    var i, page_window, start_window, window_limit, _i, _j, _ref;
     page_window = [];
-    for (i = _i = 0, _ref = this.$scope.page_info.window_size; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+    window_limit = Math.min(this.$scope.page_info.window_size, this.$scope.page_info.num_pages);
+    for (i = _i = 0; 0 <= window_limit ? _i < window_limit : _i > window_limit; i = 0 <= window_limit ? ++_i : --_i) {
       page_window.push(i);
     }
     this.$scope.page_info.windows.push(page_window);
     if (this.$scope.page_info.num_pages > this.$scope.page_info.window_size) {
       page_window = [];
       start_window = this.$scope.page_info.num_pages - this.$scope.page_info.window_size;
-      for (i = _j = start_window, _ref1 = this.$scope.page_info.num_pages; start_window <= _ref1 ? _j < _ref1 : _j > _ref1; i = start_window <= _ref1 ? ++_j : --_j) {
+      for (i = _j = start_window, _ref = this.$scope.page_info.num_pages; start_window <= _ref ? _j < _ref : _j > _ref; i = start_window <= _ref ? ++_j : --_j) {
         page_window.push(i);
       }
       return this.$scope.page_info.windows.push(page_window);
@@ -667,7 +604,17 @@ HomeController = (function() {
   };
 
   HomeController.prototype.on_page_change = function(new_page) {
-    return this.$scope.page_info.page = new_page;
+    return this.$location.path("/page/" + new_page);
+  };
+
+  HomeController.prototype.show_all_pages = function() {
+    var i, page_window, _i, _ref;
+    this.$scope.page_info.windows.length = 0;
+    page_window = [];
+    for (i = _i = 0, _ref = this.$scope.page_info.num_pages; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+      page_window.push(i);
+    }
+    return this.$scope.page_info.windows.push(page_window);
   };
 
   return HomeController;
@@ -680,5 +627,66 @@ lex_app.filter('startFrom', function() {
   return function(input, start) {
     start = Math.abs(start);
     return input.slice(start);
+  };
+});
+
+lex_app.directive('allfundschart', function(Budget) {
+  return {
+    restrict: 'E',
+    replace: true,
+    scope: {
+      data: '='
+    },
+    template: '<div id="all-funds-pie" class="chart-wrapper"></div>',
+    link: function(scope, element, attrs) {
+      return scope.$watch('data.length', function() {
+        var chart, color, grouped_data;
+        if (!(scope.data && scope.data.length > 0)) {
+          return;
+        }
+        grouped_data = Budget.group_data(scope.data, 'fund_name', 'fy_2014_adopted');
+        color = d3.scale.category20();
+        chart = new PieChart(element[0], color, 'fy_2014_adopted');
+        chart.create_root(grouped_data);
+        chart.create_pie_slices(function(value) {
+          return numeral(value).format("$ 0,0[.]00");
+        });
+        chart.label_pie_slices(function(value) {
+          return numeral(value).format("($ 0.0 a)");
+        });
+        return chart.add_legend('fund_name');
+      });
+    }
+  };
+});
+
+lex_app.directive('generalserviceschart', function(Budget) {
+  return {
+    restrict: 'E',
+    replace: true,
+    scope: {
+      data: '='
+    },
+    template: '<div id="general-services-pie" class="chart-wrapper"></div>',
+    link: function(scope, element, attrs) {
+      return scope.$watch('data.length', function() {
+        var chart, color, gen_serv_data, grouped_data;
+        if (!(scope.data && scope.data.length > 0)) {
+          return;
+        }
+        gen_serv_data = Budget.extract_fund_data(1101, scope.data);
+        grouped_data = Budget.group_data(gen_serv_data, 'division_name', 'fy_2014_adopted');
+        color = d3.scale.category20();
+        chart = new PieChart(element[0], color, 'fy_2014_adopted');
+        chart.create_root(grouped_data);
+        chart.create_pie_slices(function(value) {
+          return numeral(value).format("$ 0,0[.]00");
+        });
+        chart.label_pie_slices(function(value) {
+          return numeral(value).format("($ 0.0 a)");
+        });
+        return chart.add_legend('division_name');
+      });
+    }
   };
 });
