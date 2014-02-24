@@ -17,18 +17,27 @@ lex_app.factory 'Budget', ($http) ->
       @table_data.length = 0
       fund = filters.fund
       dept_id = filters.dept_id
-      if fund && dept_id
-        for row in @data when row.fund && row.fund is fund && row.dept_id is dept_id
-          @table_data.push row
+      dept_id2 = filters.dept_id2
+      if fund && dept_id && dept_id2
+        include_row = (row) -> row.fund is fund && row.dept_id is dept_id &&
+                               row.dept_id2 is dept_id2
+      else if fund && dept_id
+        include_row = (row) -> row.fund is fund && row.dept_id is dept_id
+      else if fund && dept_id2
+        include_row = (row) -> row.fund is fund && row.dept_id2 is dept_id2
+      else if dept_id && dept_id2
+        include_row = (row) -> row.dept_id is dept_id &&
+                               row.dept_id2 is dept_id2
       else if fund
-        for row in @data when row.fund && row.fund is fund
-          @table_data.push row
+        include_row = (row) -> row.fund is fund
       else if dept_id
-        for row in @data when row.fund && row.dept_id is dept_id
-          @table_data.push row
+        include_row = (row) -> row.dept_id is dept_id
+      else if dept_id2
+        include_row = (row) -> row.dept_id2 is dept_id2
       else
-        for row in @data when row.fund
-          @table_data.push row
+        include_row = (row) -> true
+      for row in @data when row.fund && include_row(row)
+        @table_data.push row
       @page_info.num_pages = Math.ceil(@table_data.length / @page_info.per_page)
 
     set_page_windows: ->

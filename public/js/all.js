@@ -301,7 +301,23 @@ lex_app.config([
       templateUrl: '/home.html',
       controller: lex_app.HomeController
     });
+    $routeProvider.when('/page/:page/program/:dept_id2', {
+      templateUrl: '/home.html',
+      controller: lex_app.HomeController
+    });
+    $routeProvider.when('/page/:page/division/:dept_id/program/:dept_id2', {
+      templateUrl: '/home.html',
+      controller: lex_app.HomeController
+    });
     $routeProvider.when('/page/:page/fund/:fund/division/:dept_id', {
+      templateUrl: '/home.html',
+      controller: lex_app.HomeController
+    });
+    $routeProvider.when('/page/:page/fund/:fund/program/:dept_id2', {
+      templateUrl: '/home.html',
+      controller: lex_app.HomeController
+    });
+    $routeProvider.when('/page/:page/fund/:fund/division/:dept_id/program/' + ':dept_id2', {
       templateUrl: '/home.html',
       controller: lex_app.HomeController
     });
@@ -471,41 +487,49 @@ lex_app.factory('Budget', function($http) {
     }
 
     BudgetService.prototype.filter_data = function(filters) {
-      var dept_id, fund, row, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3;
+      var dept_id, dept_id2, fund, include_row, row, _i, _len, _ref;
       this.table_data.length = 0;
       fund = filters.fund;
       dept_id = filters.dept_id;
-      if (fund && dept_id) {
-        _ref = this.data;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          row = _ref[_i];
-          if (row.fund && row.fund === fund && row.dept_id === dept_id) {
-            this.table_data.push(row);
-          }
-        }
+      dept_id2 = filters.dept_id2;
+      if (fund && dept_id && dept_id2) {
+        include_row = function(row) {
+          return row.fund === fund && row.dept_id === dept_id && row.dept_id2 === dept_id2;
+        };
+      } else if (fund && dept_id) {
+        include_row = function(row) {
+          return row.fund === fund && row.dept_id === dept_id;
+        };
+      } else if (fund && dept_id2) {
+        include_row = function(row) {
+          return row.fund === fund && row.dept_id2 === dept_id2;
+        };
+      } else if (dept_id && dept_id2) {
+        include_row = function(row) {
+          return row.dept_id === dept_id && row.dept_id2 === dept_id2;
+        };
       } else if (fund) {
-        _ref1 = this.data;
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          row = _ref1[_j];
-          if (row.fund && row.fund === fund) {
-            this.table_data.push(row);
-          }
-        }
+        include_row = function(row) {
+          return row.fund === fund;
+        };
       } else if (dept_id) {
-        _ref2 = this.data;
-        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-          row = _ref2[_k];
-          if (row.fund && row.dept_id === dept_id) {
-            this.table_data.push(row);
-          }
-        }
+        include_row = function(row) {
+          return row.dept_id === dept_id;
+        };
+      } else if (dept_id2) {
+        include_row = function(row) {
+          return row.dept_id2 === dept_id2;
+        };
       } else {
-        _ref3 = this.data;
-        for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
-          row = _ref3[_l];
-          if (row.fund) {
-            this.table_data.push(row);
-          }
+        include_row = function(row) {
+          return true;
+        };
+      }
+      _ref = this.data;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        row = _ref[_i];
+        if (row.fund && include_row(row)) {
+          this.table_data.push(row);
         }
       }
       return this.page_info.num_pages = Math.ceil(this.table_data.length / this.page_info.per_page);
@@ -617,17 +641,20 @@ var HomeController,
 
 HomeController = (function() {
   function HomeController($scope, $location, $routeParams, $http, Budget) {
-    var dept_id, fund;
+    var dept_id, dept_id2, fund;
     this.$scope = $scope;
     this.$location = $location;
     this.show_all_pages = __bind(this.show_all_pages, this);
     this.on_page_change = __bind(this.on_page_change, this);
     fund = $routeParams.fund;
     dept_id = $routeParams.dept_id;
+    dept_id2 = $routeParams.dept_id2;
     $scope.filters = {
       fund: fund ? parseInt(fund, 10) : void 0,
-      dept_id: dept_id ? parseInt(dept_id, 10) : void 0
+      dept_id: dept_id ? parseInt(dept_id, 10) : void 0,
+      dept_id2: dept_id2 ? parseInt(dept_id2, 10) : void 0
     };
+    console.log($scope.filters);
     $scope.page_info = Budget.page_info;
     $scope.page_info.page = parseInt($routeParams.page || 1, 10);
     if ($scope.page_info.page < 1) {
@@ -645,7 +672,18 @@ HomeController = (function() {
         value: void 0
       }
     ];
-    $scope.divisions = [];
+    $scope.divisions = [
+      {
+        name: '',
+        value: void 0
+      }
+    ];
+    $scope.programs = [
+      {
+        name: '',
+        value: void 0
+      }
+    ];
     $scope.$watch('budget_data.length', (function(_this) {
       return function() {
         if (!($scope.budget_data.length > 0)) {
@@ -667,7 +705,7 @@ HomeController = (function() {
         return Budget.set_page_windows();
       };
     })(this));
-    $scope.$watchCollection('[filters.fund, filters.dept_id]', (function(_this) {
+    $scope.$watchCollection('[filters.fund, filters.dept_id, filters.dept_id2]', (function(_this) {
       return function() {
         var new_page;
         if (!($scope.table_data.length > 0)) {
@@ -682,7 +720,7 @@ HomeController = (function() {
   }
 
   HomeController.prototype.initialize_filters = function() {
-    var dept_ids, fund, funds, name_sorter, row, _i, _len, _ref;
+    var dept_id, dept_id2s, dept_ids, fund, funds, name_sorter, row, _i, _len, _ref;
     name_sorter = function(a, b) {
       if (a.name < b.name) {
         return -1;
@@ -694,7 +732,9 @@ HomeController = (function() {
     };
     funds = [];
     dept_ids = [];
+    dept_id2s = [];
     fund = this.$scope.filters.fund;
+    dept_id = this.$scope.filters.dept_id;
     _ref = this.$scope.budget_data;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       row = _ref[_i];
@@ -712,9 +752,17 @@ HomeController = (function() {
         });
         dept_ids.push(row.dept_id);
       }
+      if (row.dept_id2 && dept_id2s.indexOf(row.dept_id2) === -1 && (!fund || row.fund === fund) && (!dept_id || row.dept_id === dept_id)) {
+        this.$scope.programs.push({
+          name: row.program_name,
+          value: row.dept_id2
+        });
+        dept_id2s.push(row.dept_id2);
+      }
     }
     this.$scope.funds.sort(name_sorter);
-    return this.$scope.divisions.sort(name_sorter);
+    this.$scope.divisions.sort(name_sorter);
+    return this.$scope.programs.sort(name_sorter);
   };
 
   HomeController.prototype.change_page_if_necessary = function() {
@@ -724,17 +772,32 @@ HomeController = (function() {
   };
 
   HomeController.prototype.on_page_change = function(new_page) {
-    var dept_id, fund;
+    var dept_id, dept_id2, fund;
     fund = this.$scope.filters.fund;
     dept_id = this.$scope.filters.dept_id;
+    dept_id2 = this.$scope.filters.dept_id2;
     if (fund) {
       if (dept_id) {
-        return this.$location.path("/page/" + new_page + "/fund/" + fund + "/division/" + dept_id);
+        if (dept_id2) {
+          return this.$location.path(("/page/" + new_page + "/fund/" + fund + "/division/" + dept_id) + ("/program/" + dept_id2));
+        } else {
+          return this.$location.path("/page/" + new_page + "/fund/" + fund + "/division/" + dept_id);
+        }
       } else {
-        return this.$location.path("/page/" + new_page + "/fund/" + fund);
+        if (dept_id2) {
+          return this.$location.path("/page/" + new_page + "/fund/" + fund + "/program/" + dept_id2);
+        } else {
+          return this.$location.path("/page/" + new_page + "/fund/" + fund);
+        }
       }
     } else if (dept_id) {
-      return this.$location.path("/page/" + new_page + "/division/" + dept_id);
+      if (dept_id2) {
+        return this.$location.path(("/page/" + new_page + "/division/" + dept_id + "/program/") + ("" + dept_id2));
+      } else {
+        return this.$location.path("/page/" + new_page + "/division/" + dept_id);
+      }
+    } else if (dept_id2) {
+      return this.$location.path("/page/" + new_page + "/program/" + dept_id2);
     } else {
       return this.$location.path("/page/" + new_page);
     }
