@@ -13,4 +13,11 @@ Lexington, Kentucky budget visualization
 
 ## To Run
 
+### Via Ruby
+
 `foreman start -f Procfile.local` starts both the Rack server that serves up static HTML, CSS, and JavaScript files and Gulp, which watches for changes in your Haml, CoffeeScript, and LESS files and will recompile them.
+
+### Via JS
+
+1. `npm install`
+1. `node server.js`
