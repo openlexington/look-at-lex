@@ -830,17 +830,16 @@ lex_app.directive('allfundschart', function(Budget) {
   return {
     restrict: 'E',
     replace: true,
-    scope: {
-      data: '='
-    },
+    transclude: true,
+    scope: {},
     template: '<div id="all-funds-pie" class="chart-wrapper"></div>',
     link: function(scope, element, attrs) {
-      return scope.$watch('data.length', function() {
+      return scope.$watch('$parent.table_data.length', function() {
         var chart, color, grouped_data;
-        if (!(scope.data && scope.data.length > 0)) {
+        if (!(scope.$parent.table_data && scope.$parent.table_data.length > 0)) {
           return;
         }
-        grouped_data = Budget.group_data(scope.data, 'fund_name', 'fy_2014_adopted');
+        grouped_data = Budget.group_data(scope.$parent.table_data, 'fund_name', 'fy_2014_adopted');
         color = d3.scale.category20();
         chart = new PieChart(element[0], color, 'fy_2014_adopted');
         chart.create_root(grouped_data);
@@ -860,17 +859,16 @@ lex_app.directive('generalserviceschart', function(Budget) {
   return {
     restrict: 'E',
     replace: true,
-    scope: {
-      data: '='
-    },
+    transclude: true,
+    scope: {},
     template: '<div id="general-services-pie" class="chart-wrapper"></div>',
     link: function(scope, element, attrs) {
-      return scope.$watch('data.length', function() {
+      return scope.$watch('$parent.table_data.length', function() {
         var chart, color, gen_serv_data, grouped_data;
-        if (!(scope.data && scope.data.length > 0)) {
+        if (!(scope.$parent.table_data && scope.$parent.table_data.length > 0)) {
           return;
         }
-        gen_serv_data = Budget.extract_fund_data(1101, scope.data);
+        gen_serv_data = Budget.extract_fund_data(1101, scope.$parent.table_data);
         grouped_data = Budget.group_data(gen_serv_data, 'division_name', 'fy_2014_adopted');
         color = d3.scale.category20();
         chart = new PieChart(element[0], color, 'fy_2014_adopted');
