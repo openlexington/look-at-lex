@@ -1,13 +1,14 @@
 lex_app.directive 'allfundschart', (Budget) ->
   restrict: 'E'
   replace: true
+  transclude: true
   scope:
-    data: '='
+    {}
   template: '<div id="all-funds-pie" class="chart-wrapper"></div>'
   link: (scope, element, attrs) ->
-    scope.$watch 'data.length', ->
-      return unless scope.data && scope.data.length > 0
-      grouped_data = Budget.group_data(scope.data, 'fund_name',
+    scope.$watch '$parent.table_data.length', ->
+      return unless scope.$parent.table_data && scope.$parent.table_data.length > 0
+      grouped_data = Budget.group_data(scope.$parent.table_data, 'fund_name',
                                        'fy_2014_adopted')
       color = d3.scale.category20()
       chart = new PieChart(element[0], color, 'fy_2014_adopted')
@@ -19,13 +20,14 @@ lex_app.directive 'allfundschart', (Budget) ->
 lex_app.directive 'generalserviceschart', (Budget) ->
   restrict: 'E'
   replace: true
+  transclude: true
   scope:
-    data: '='
+    {}
   template: '<div id="general-services-pie" class="chart-wrapper"></div>'
   link: (scope, element, attrs) ->
-    scope.$watch 'data.length', ->
-      return unless scope.data && scope.data.length > 0
-      gen_serv_data = Budget.extract_fund_data(1101, scope.data)
+    scope.$watch '$parent.table_data.length', ->
+      return unless scope.$parent.table_data && scope.$parent.table_data.length > 0
+      gen_serv_data = Budget.extract_fund_data(1101, scope.$parent.table_data)
       grouped_data = Budget.group_data(gen_serv_data, 'division_name',
                                        'fy_2014_adopted')
       color = d3.scale.category20()

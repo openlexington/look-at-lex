@@ -6,12 +6,12 @@
         %h3
           All Funds
           %i.fa.fa-spinner.fa-spin{ng: {show: 'loading.budget_data'}}
-        %allFundsChart{data: 'budget_data'}
+        %allFundsChart
       .col-md-6
         %h3
           General Services
           %i.fa.fa-spinner.fa-spin{ng: {show: 'loading.budget_data'}}
-        %generalServicesChart{data: 'budget_data'}
+        %generalServicesChart
   %hr
   %table.table.table-striped{ng: {if: 'table_data.length > 0'}}
     %thead
