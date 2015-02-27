@@ -14,7 +14,6 @@ var clean = require('gulp-clean');
 var sourcemaps = require('gulp-sourcemaps');
 
 
-
 /////////////////////////
 // Shared variables /////
 /////////////////////////
