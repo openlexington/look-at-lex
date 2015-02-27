@@ -11,6 +11,7 @@ var rename = require('gulp-rename');
 var haml = require('gulp-ruby-haml');
 var minifyCSS = require('gulp-minify-css');
 var clean = require('gulp-clean');
+var sourcemaps = require('gulp-sourcemaps');
 
 
 /////////////////////////
@@ -76,6 +77,7 @@ gulp.task('minify-js', ['coffee'], function() {
                    tmp_js_path + '/controllers/*.js',
                    tmp_js_path + '/filters.js',
                    tmp_js_path + '/directives.js']).
+              pipe(sourcemaps.write()).
               pipe(concat('all.js').on('error', on_error)).
               pipe(gulp.dest('./public/js'));
 });
